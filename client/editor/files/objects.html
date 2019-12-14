@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Objects</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <script>
+			(function(obj) {
+				ue.game = {};
+				ue.game.callevent = function(name, ...args) {
+					if (typeof name != "string") return;
+		
+					if (args.length == 0) {
+						obj.callevent(name, "");
+					}	else {
+            let params = [];
+            
+						for (let i = 0; i < args.length; i++) {
+							params[i] = args[i];
+            }
+            
+						obj.callevent(name, JSON.stringify(params));
+					}
+				};
+      })(ue.game);
+    
+      CallEvent = ue.game.callevent;
+    </script>
+
+    <link href="http://asset/sandbox/client/editor/files/objects.css" rel="stylesheet" media="all">
+
+    <script src="http://asset/sandbox/client/editor/files/config.js"></script>
+    <script src="http://asset/sandbox/client/editor/files/util.js"></script>
+    <script src="http://asset/sandbox/client/editor/files/objects.js"></script>
+  </head>
+
+  <body>
+    <div class="background">
+      <div class="toolbar">
+        <small>Asset Palette</small>
+
+        <div class="tool">
+          <img src="http://asset/sandbox/client/editor/files/close.png" />
+        </div>
+      </div>
+
+      <div class="header">
+        <div class="item active" id="tab-objects">
+          <img src="http://asset/sandbox/client/editor/files/objects.png" />
+          <small>Objects</small>
+        </div>
+
+        <div class="item" id="tab-vehicles">
+            <img src="http://asset/sandbox/client/editor/files/vehicles.png" />
+          <small>Vehicles</small>
+        </div>
+
+        <div class="item" id="tab-weapons">
+          <img src="http://asset/sandbox/client/editor/files/weapons.png" />
+          <small>Weapons</small>
+        </div>
+
+        <div class="item" id="tab-clothing">
+          <img src="http://asset/sandbox/client/editor/files/clothing.png" />
+          <small>Clothing</small>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="search">
+          <input type="text" name="search">
+        </div>
+
+        <div class="listbox" id="objects">
+        </div>
+
+        <div class="listbox hidden" id="vehicles">
+        </div>
+
+        <div class="listbox hidden" id="weapons">
+        </div>
+
+        <div class="listbox hidden" id="clothing">
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
