@@ -1,11 +1,16 @@
 local EDITOR_CLOSED = 0
 local EDITOR_OPEN = 1
 
+local UI_SHOWN = 0
+local UI_HIDDEN = 1
+
 local EDITOR_TYPE_OBJECT = 0
 local EDITOR_TYPE_VEHICLE = 1
 local EDITOR_TYPE_WEAPON = 2
 
 local EditorState = EDITOR_CLOSED
+local UIState = UI_SHOWN
+
 local EditorInfoUI = 0
 local EditorObjectsUI = 0
 
@@ -99,6 +104,31 @@ function Editor_OnKeyRelease(key)
   elseif (key == 'G' and EditorState == EDITOR_OPEN) then 
     local x, y, z, distance = GetMouseHitLocation()
     CallRemoteEvent('CreateFirework', x, y, z)
+  elseif key == 'Backspace' then 
+    if UIState == UI_SHOWN then
+      UIState = UI_HIDDEN
+
+      ShowChat(false)
+      ShowHealthHUD(false)
+      ShowWeaponHUD(false)
+
+      SetWebVisibility(EditorInfoUI, WEB_HIDDEN)
+      SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
+    else
+      UIState = UI_SHOWN
+
+      ShowChat(true)
+      SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
+      
+      if EditorState == EDITOR_CLOSED then
+        ShowHealthHUD(true)
+        ShowWeaponHUD(true)
+      end
+
+      if EditorState == EDITOR_OPEN then
+        SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
+      end
+    end
   end
 end
 AddEvent('OnKeyRelease', Editor_OnKeyRelease)
