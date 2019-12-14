@@ -6,6 +6,7 @@ Authors: Digital
 #### Installation
 Create a folder inside your servers package folder called sandbox (or whatever you like), download all files from this repository and place them inside the sandbox folder.
 Edit your server_config.json to install sandbox as a package.
+![Config](https://cdn.felfire.app/55c69ef1e5eadca4c5101bb4195160b5.png)
 
 #### Media
 ![Object palette](https://cdn.felfire.app/41c916737d318b27bc7f500945b14048.png)
