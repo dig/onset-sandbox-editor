@@ -1,12 +1,12 @@
 {
-	"author": "Digital",
-	"version": "1.0",
-	"server_scripts": [
+  "author": "Digital",
+  "version": "1.0",
+  "server_scripts": [
     "server/base/base.lua",
     "server/editor/editor.lua"
-	],
-	"client_scripts": [
-		"client/editor/editor.lua"
+  ],
+  "client_scripts": [
+    "client/editor/editor.lua"
   ],
   "files": [
     "client/editor/files/information.html",
