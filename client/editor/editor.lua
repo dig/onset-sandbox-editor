@@ -18,7 +18,7 @@ local EditorLastLocation = {}
 
 local EditorPendingType = EDITOR_TYPE_OBJECT
 local EditorPendingID = 0
-local EditorPendingData = 0
+local EditorPendingData = {}
 local EditorPendingPlacement = false
 
 local EditorSelectedObject = 0
@@ -69,11 +69,15 @@ function Editor_OnKeyRelease(key)
     local x, y, z, distance = GetMouseHitLocation()
 
     if EditorPendingType == EDITOR_TYPE_OBJECT then
-      CallRemoteEvent('CreateObject', EditorPendingID, x, y, z)
+      if (EditorPendingData['rx'] ~= nil and EditorPendingData['sx'] ~= nil) then
+        CallRemoteEvent('CreateObject', EditorPendingID, x, y, z, EditorPendingData['rx'], EditorPendingData['ry'], EditorPendingData['rz'], EditorPendingData['sx'], EditorPendingData['sy'], EditorPendingData['sz'])
+      else
+        CallRemoteEvent('CreateObject', EditorPendingID, x, y, z)
+      end
     elseif EditorPendingType == EDITOR_TYPE_VEHICLE then
       CallRemoteEvent('CreateVehicle', EditorPendingID, x, y, z)
     elseif EditorPendingType == EDITOR_TYPE_WEAPON then
-      CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData, x, y, z + 70)
+      CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData['weaponID'], x, y, z + 70)
     end
   elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN) then 
     local EntityType, EntityId = GetMouseHitEntity()
@@ -99,7 +103,11 @@ function Editor_OnKeyRelease(key)
     end
   elseif (key == 'C' and IsCtrlPressed() and EditorState == EDITOR_OPEN) then 
     if (EditorSelectedObject ~= 0) then
-      Editor_CreateObjectPlacement(GetObjectModel(EditorSelectedObject))
+      local _objectID = GetObjectModel(EditorSelectedObject)
+      local rx, ry, rz = GetObjectRotation(EditorSelectedObject)
+      local sx, sy, sz = GetObjectScale(EditorSelectedObject)
+
+      Editor_CreateObjectPlacement(_objectID, rx, ry, rz, sx, sy, sz)
     end
   elseif (key == 'G' and EditorState == EDITOR_OPEN) then 
     local x, y, z, distance = GetMouseHitLocation()
@@ -119,7 +127,7 @@ function Editor_OnKeyRelease(key)
 
       ShowChat(true)
       SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
-      
+
       if EditorState == EDITOR_CLOSED then
         ShowHealthHUD(true)
         ShowWeaponHUD(true)
@@ -168,14 +176,25 @@ function Editor_OnLocationChange()
 end
 CreateTimer(Editor_OnLocationChange, 100)
 
-function Editor_CreateObjectPlacement(objectID)
+function Editor_CreateObjectPlacement(objectID, rx, ry, rz, sx, sy, sz)
   objectID = tonumber(objectID)
   if not EditorState == EDITOR_OPEN then return end
   if (objectID <= 0 or objectID > GetObjectModelCount()) then return end
 
   EditorPendingType = EDITOR_TYPE_OBJECT
   EditorPendingID = objectID
+  EditorPendingData = {}
   EditorPendingPlacement = true
+
+  if (rx ~= nil and sx ~= nil) then
+    EditorPendingData['rx'] = rx
+    EditorPendingData['ry'] = ry
+    EditorPendingData['rz'] = rz
+
+    EditorPendingData['sx'] = sx
+    EditorPendingData['sy'] = sy
+    EditorPendingData['sz'] = sz
+  end
 end
 AddEvent('CreateObjectPlacement', Editor_CreateObjectPlacement)
 
@@ -186,6 +205,7 @@ function Editor_CreateVehiclePlacement(vehicleID)
 
   EditorPendingType = EDITOR_TYPE_VEHICLE
   EditorPendingID = vehicleID
+  EditorPendingData = {}
   EditorPendingPlacement = true
 end
 AddEvent('CreateVehiclePlacement', Editor_CreateVehiclePlacement)
@@ -200,7 +220,7 @@ function Editor_CreateWeaponPlacement(objectID, weaponID)
 
   EditorPendingType = EDITOR_TYPE_WEAPON
   EditorPendingID = objectID
-  EditorPendingData = weaponID
+  EditorPendingData['weaponID'] = weaponID
   EditorPendingPlacement = true
 end
 AddEvent('CreateWeaponPlacement', Editor_CreateWeaponPlacement)

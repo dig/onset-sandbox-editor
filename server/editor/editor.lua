@@ -17,9 +17,16 @@ function Editor_SetPlayerLocation(player, x, y, z)
 end
 AddRemoteEvent('SetPlayerLocation', Editor_SetPlayerLocation)
 
-function Editor_CreateObject(player, objectID, x, y, z)
+function Editor_CreateObject(player, objectID, x, y, z, rx, ry, rz, sx, sy, sz)
   local _object = CreateObject(objectID, x, y, z)
-  if _object then CallRemoteEvent(player, 'OnServerObjectCreate', _object) end
+  if _object then
+    CallRemoteEvent(player, 'OnServerObjectCreate', _object)
+
+    if (rx ~= nil and sx ~= nil) then
+      SetObjectRotation(_object, rx, ry, rz)
+      SetObjectScale(_object, sx, sy, sz)
+    end
+  end
 end
 AddRemoteEvent('CreateObject', Editor_CreateObject)
 
