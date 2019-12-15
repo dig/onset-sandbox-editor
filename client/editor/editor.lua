@@ -26,6 +26,9 @@ local EditorSelectedObjectEdited = false
 local EditorSelectedObjectMode = EDIT_LOCATION
 local EditorHighlightedObjects = {}
 
+local EditorLastSyncData = {}
+local EditorLastClick = 0
+
 local TOTAL_VEHICLES = 25
 local TOTAL_WEAPONS = 21
 local TOTAL_CLOTHING = 30
@@ -71,6 +74,8 @@ function Editor_HandleCreateObject(x, y, z)
 end
 
 function Editor_OnKeyRelease(key)
+  EditorLastClick = GetTimeSeconds()
+
   if key == 'P' then
     CallRemoteEvent('SetPlayerEditor', EditorState == EDITOR_CLOSED)
     
@@ -91,11 +96,6 @@ function Editor_OnKeyRelease(key)
       CallRemoteEvent('CreateVehicle', EditorPendingID, x, y, z)
     elseif EditorPendingType == EDITOR_TYPE_WEAPON then
       CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData['weaponID'], x, y, z + 70)
-    end
-  elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN) then 
-    local EntityType, EntityId = GetMouseHitEntity()
-    if (EntityType == HIT_OBJECT and EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
-      Editor_SelectObject(EntityId)
     end
   elseif (key == 'Left Alt' and EditorState == EDITOR_OPEN and EditorSelectedObject ~= 0) then 
     if EditorSelectedObjectMode == EDIT_LOCATION then
@@ -194,6 +194,20 @@ function Editor_OnKeyRelease(key)
   end
 end
 AddEvent('OnKeyRelease', Editor_OnKeyRelease)
+
+function Editor_OnKeyPress(key)
+  -- Check for double click
+  local bDoubleClick = GetTimeSeconds() <= (EditorLastClick + 0.25)
+
+  if (key == 'Left Mouse Button' and bDoubleClick and EditorState == EDITOR_OPEN) then 
+    AddPlayerChat('Left double click.')
+    local EntityType, EntityId = GetMouseHitEntity()
+    if (EntityType == HIT_OBJECT and EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
+      Editor_SelectObject(EntityId)
+    end
+  end
+end
+AddEvent('OnKeyPress', Editor_OnKeyPress)
 
 function Editor_OnServerChangeEditor(bEnabled)
   ShowMouseCursor(bEnabled)
@@ -351,24 +365,69 @@ function Editor_SelectObject(object)
 
       EditorSelectedObjectEdited = false
       EditorSelectedObject = object
+
+      Editor_UpdateSyncData(object)
     end
   end
 end
 
-function Editor_SyncObject(object)
+function Editor_UpdateSyncData(object)
   if not IsValidObject(object) then return end
 
   local x, y, z = GetObjectLocation(object)
   local rx, ry, rz = GetObjectRotation(object)
   local sx, sy, sz = GetObjectScale(object)
 
+  EditorLastSyncData['x'] = x
+  EditorLastSyncData['y'] = y
+  EditorLastSyncData['z'] = z
+
+  EditorLastSyncData['rx'] = rx
+  EditorLastSyncData['ry'] = ry
+  EditorLastSyncData['rz'] = rz
+
+  EditorLastSyncData['sx'] = sx
+  EditorLastSyncData['sy'] = sy
+  EditorLastSyncData['sz'] = sz
+end
+
+function Editor_SyncObject(object)
+  if not IsValidObject(object) then return end
+
+  local lx = EditorLastSyncData['x']
+  local ly = EditorLastSyncData['y']
+  local lz = EditorLastSyncData['z']
+
+  local lrx = EditorLastSyncData['rx']
+  local lry = EditorLastSyncData['ry']
+  local lrz = EditorLastSyncData['rz']
+
+  local lsx = EditorLastSyncData['sx']
+  local lsy = EditorLastSyncData['sy']
+  local lsz = EditorLastSyncData['sz']
+
+  local x, y, z = GetObjectLocation(object)
+  local rx, ry, rz = GetObjectRotation(object)
+  local sx, sy, sz = GetObjectScale(object)
+
   if sx == 1.0 and sy == 1.0 and sz == 1.0 then
-    sx = nil
-    sy = nil
-    sz = nil
+    CallRemoteEvent('SyncObject', object, x, y, z, rx, ry, rz)
+  else
+    CallRemoteEvent('SyncObject', object, x, y, z, rx, ry, rz, sx, sy, sz)
   end
 
-  CallRemoteEvent('SyncObject', object, x, y, z, rx, ry, rz, sx, sy, sz)
+  -- Update highlighted objects on edit
+  if (#EditorHighlightedObjects > 0 and lx ~= nil and lrx ~= nil and lsx ~= nil) then
+    for _,v in pairs(EditorHighlightedObjects) do
+      local vx, vy, vz = GetObjectLocation(v)
+      local vrx, vry, vrz = GetObjectRotation(v)
+      local vsx, vsy, vsz = GetObjectScale(v)
+
+      CallRemoteEvent('SyncObject', v, vx + (x - lx), vy + (y - ly), vz + (z - lz), vrx + (rx - lrx), vry + (ry - lry), vrz + (rz - lrz), vsx + (sx - lsx), vsy + (sy - lsy), vsz + (sz - lsz))
+    end
+  end
+
+  Editor_UpdateSyncData(object)
 end
 
 function Editor_OnPlayerBeginEditObject(object)
