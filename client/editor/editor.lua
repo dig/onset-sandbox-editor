@@ -111,6 +111,13 @@ function Editor_OnKeyRelease(key)
     if (EditorSelectedObject ~= 0) then
       CallRemoteEvent('DeleteObject', EditorSelectedObject)
 
+      -- Delete highlighted
+      if #EditorHighlightedObjects > 0 then
+        for _,v in ipairs(EditorHighlightedObjects) do
+          CallRemoteEvent('DeleteObject', v)
+        end
+      end
+
       EditorSelectedObjectEdited = false
       Editor_SelectObject(0)
     end
