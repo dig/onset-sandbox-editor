@@ -38,7 +38,7 @@ function Editor_OnPackageStart()
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorInfoUI, 0.0, 0.7, 0.3, 1.0)
   LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/information.html')
-  SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
+  SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
 
   -- Load objects list
   EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
@@ -180,7 +180,7 @@ function Editor_OnKeyRelease(key)
       UIState = UI_SHOWN
 
       ShowChat(true)
-      SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
+      SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
 
       if EditorState == EDITOR_CLOSED then
         ShowHealthHUD(true)
