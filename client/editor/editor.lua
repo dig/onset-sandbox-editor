@@ -469,3 +469,12 @@ function Editor_RequestClothingPreset(clothingID)
   CallRemoteEvent('SetClothingPreset', clothingID)
 end
 AddEvent('RequestClothingPreset', Editor_RequestClothingPreset)
+
+function Editor_OnPlayerSpawn()
+  local player = GetPlayerId()
+  local _clothingID = GetPlayerPropertyValue(player, 'clothingID')
+  if (_clothingID ~= nil and _clothingID ~= 0) then
+    SetPlayerClothingPreset(player, _clothingID)
+  end
+end
+AddEvent('OnPlayerSpawn', Editor_OnPlayerSpawn)
