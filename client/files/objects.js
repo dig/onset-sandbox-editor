@@ -134,7 +134,7 @@ function LoadWeapons(amount) {
     let modelID = 0;
     for (let key in WEAPON_CONFIG) {
       let weaponCfg = WEAPON_CONFIG[key];
-      
+
       if (weaponCfg.weaponID == i) {
         modelID = weaponCfg.modelID;
         break;
@@ -163,7 +163,7 @@ function LoadClothing(amount) {
 
   let appendHTML = '';
   for (let i = 1; i < amount + 1; i++) {
-    appendHTML += `<img data-id="${i}" src="http://asset/sandbox/client/editor/files/clothing/${(i == 11 ? 10 : i)}.jpg" />`;
+    appendHTML += `<img data-id="${i}" src="http://asset/sandbox/client/files/clothing/${(i == 11 ? 10 : i)}.jpg" />`;
   }
   listbox.innerHTML += appendHTML;
 

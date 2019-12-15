@@ -33,13 +33,13 @@ function Editor_OnPackageStart()
   -- Load bottom left information
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorInfoUI, 0.0, 0.5, 0.5, 1.0)
-  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/information.html')
+  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/files/information.html')
   SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
 
   -- Load objects list
   EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorObjectsUI, 0.8, 0.0, 1.0, 1.0)
-  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/objects.html')
+  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/files/objects.html')
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
@@ -56,16 +56,16 @@ AddEvent("OnWebLoadComplete", Editor_OnWebLoadComplete)
 function Editor_OnKeyRelease(key)
   if key == 'P' then
     CallRemoteEvent('SetPlayerEditor', EditorState == EDITOR_CLOSED)
-    
+
     if EditorState == EDITOR_CLOSED then
       EditorState = EDITOR_OPEN
     else
       EditorState = EDITOR_CLOSED
     end
-  elseif (key == 'F' and EditorState == EDITOR_OPEN) then 
+  elseif (key == 'F' and EditorState == EDITOR_OPEN) then
     local x, y, z, distance = GetMouseHitLocation()
     CallRemoteEvent('SetPlayerLocation', x, y, z + 100)
-  elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN and EditorPendingPlacement) then 
+  elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN and EditorPendingPlacement) then
     local x, y, z, distance = GetMouseHitLocation()
 
     if EditorPendingType == EDITOR_TYPE_OBJECT then
@@ -75,12 +75,12 @@ function Editor_OnKeyRelease(key)
     elseif EditorPendingType == EDITOR_TYPE_WEAPON then
       CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData, x, y, z + 70)
     end
-  elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN) then 
+  elseif (key == 'Left Mouse Button' and EditorState == EDITOR_OPEN) then
     local EntityType, EntityId = GetMouseHitEntity()
     if (EntityType == HIT_OBJECT and EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
       Editor_SelectObject(EntityId)
     end
-  elseif (key == 'Left Alt' and EditorState == EDITOR_OPEN and EditorSelectedObject ~= 0) then 
+  elseif (key == 'Left Alt' and EditorState == EDITOR_OPEN and EditorSelectedObject ~= 0) then
     if EditorSelectedObjectMode == EDIT_LOCATION then
       EditorSelectedObjectMode = EDIT_ROTATION
     elseif EditorSelectedObjectMode == EDIT_ROTATION then
@@ -90,21 +90,21 @@ function Editor_OnKeyRelease(key)
     end
 
     SetObjectEditable(EditorSelectedObject, EditorSelectedObjectMode)
-  elseif (key == 'Delete' and EditorState == EDITOR_OPEN) then 
+  elseif (key == 'Delete' and EditorState == EDITOR_OPEN) then
     if (EditorSelectedObject ~= 0) then
       CallRemoteEvent('DeleteObject', EditorSelectedObject)
 
       EditorSelectedObjectEdited = false
       Editor_SelectObject(0)
     end
-  elseif (key == 'C' and IsCtrlPressed() and EditorState == EDITOR_OPEN) then 
+  elseif (key == 'C' and IsCtrlPressed() and EditorState == EDITOR_OPEN) then
     if (EditorSelectedObject ~= 0) then
       Editor_CreateObjectPlacement(GetObjectModel(EditorSelectedObject))
     end
-  elseif (key == 'G' and EditorState == EDITOR_OPEN) then 
+  elseif (key == 'G' and EditorState == EDITOR_OPEN) then
     local x, y, z, distance = GetMouseHitLocation()
     CallRemoteEvent('CreateFirework', x, y, z)
-  elseif key == 'Backspace' then 
+  elseif key == 'Backspace' then
     if UIState == UI_SHOWN then
       UIState = UI_HIDDEN
 
@@ -119,7 +119,7 @@ function Editor_OnKeyRelease(key)
 
       ShowChat(true)
       SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
-      
+
       if EditorState == EDITOR_CLOSED then
         ShowHealthHUD(true)
         ShowWeaponHUD(true)
@@ -156,7 +156,7 @@ AddRemoteEvent('OnServerChangeEditor', Editor_OnServerChangeEditor)
 
 function Editor_OnLocationChange()
   local x, y, z = GetPlayerLocation()
-  
+
   -- Only update if location has changed
   if (not (EditorLastLocation[0] == x) or not (EditorLastLocation[1] == y) or not (EditorLastLocation[2] == z)) then
     EditorLastLocation[0] = x
@@ -218,7 +218,7 @@ AddEvent('OnRenderHUD', Editor_OnRenderHUD)
 
 function Editor_OnServerObjectCreate(object)
   EditorPendingPlacement = false
-  
+
   if EditorPendingType == EDITOR_TYPE_OBJECT then
     Delay(100, function(object)
       Editor_SelectObject(object)

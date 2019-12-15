@@ -12,43 +12,43 @@
 				ue.game = {};
 				ue.game.callevent = function(name, ...args) {
 					if (typeof name != "string") return;
-		
+
 					if (args.length == 0) {
 						obj.callevent(name, "");
 					}	else {
             let params = [];
-            
+
 						for (let i = 0; i < args.length; i++) {
 							params[i] = args[i];
             }
-            
+
 						obj.callevent(name, JSON.stringify(params));
 					}
 				};
       })(ue.game);
-    
+
       CallEvent = ue.game.callevent;
-      
+
       function OnLocationUpdate(x, y, z) {
         let nodeX = document.getElementById('x');
         nodeX.innerHTML = `X: ${x}`;
 
         let nodeY = document.getElementById('y');
         nodeY.innerHTML = `Y: ${y}`;
-        
+
         let nodeZ = document.getElementById('z');
         nodeZ.innerHTML = `Z: ${z}`;
       }
     </script>
 
-    <link href="http://asset/sandbox/client/editor/files/information.css" rel="stylesheet" media="all">
+    <link href="http://asset/sandbox/client/files/information.css" rel="stylesheet" media="all">
   </head>
 
   <body>
     <div class="information">
       <h4>Sandbox - Made by Digital.</h4>
       <p>Press P to toggle editor.</p>
-      
+
       <div class="editor">
         <p>Press F to teleport player to cursor.</p>
         <p>Press G to fire firework on cursor.</p>
@@ -56,7 +56,7 @@
         <p>Press BACKSPACE to hide UI & chat.</p>
         <p>Use SCROLL to speed up/down the camera.</p>
       </div>
-  
+
       <div class="coordinate">
         <span id="x">X:</span>
         <span id="y">Y:</span>
