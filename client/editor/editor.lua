@@ -27,7 +27,7 @@ local EditorSelectedObjectMode = EDIT_LOCATION
 local EditorHighlightedObjects = {}
 
 local TOTAL_VEHICLES = 25
-local TOTAL_WEAPONS = 20
+local TOTAL_WEAPONS = 21
 local TOTAL_CLOTHING = 30
 
 function Editor_OnPackageStart()
@@ -374,8 +374,8 @@ end
 function Editor_OnPlayerBeginEditObject(object)
   if object == EditorSelectedObject then
     AddPlayerChat('Start sync process.')
-		EditorSelectedObjectEdited = true
-	end
+    EditorSelectedObjectEdited = true
+  end
 end
 AddEvent('OnPlayerBeginEditObject', Editor_OnPlayerBeginEditObject)
 
@@ -384,7 +384,7 @@ function Editor_OnPlayerEndEditObject(object)
     AddPlayerChat('Synced object.')
     Editor_SyncObject(object)
     EditorSelectedObjectEdited = false
-	end
+  end
 end
 AddEvent('OnPlayerEndEditObject', Editor_OnPlayerEndEditObject)
 

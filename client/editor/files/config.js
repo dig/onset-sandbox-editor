@@ -177,5 +177,9 @@ var WEAPON_CONFIG = [
   {
     "weaponID": 20,
     "modelID": 22
+  },
+  {
+    "weaponID": 21,
+    "modelID": 1408
   }
 ];
