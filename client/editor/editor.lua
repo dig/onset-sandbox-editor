@@ -24,6 +24,7 @@ local EditorPendingPlacement = false
 local EditorSelectedObject = 0
 local EditorSelectedObjectEdited = false
 local EditorSelectedObjectMode = EDIT_LOCATION
+local EditorHighlightedObjects = {}
 
 local TOTAL_VEHICLES = 25
 local TOTAL_WEAPONS = 20
@@ -32,7 +33,7 @@ local TOTAL_CLOTHING = 30
 function Editor_OnPackageStart()
   -- Load bottom left information
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
-  SetWebAnchors(EditorInfoUI, 0.0, 0.5, 0.5, 1.0)
+  SetWebAnchors(EditorInfoUI, 0.0, 0.7, 0.3, 1.0)
   LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/information.html')
   SetWebVisibility(EditorInfoUI, WEB_VISIBLE)
 
@@ -53,6 +54,22 @@ function Editor_OnWebLoadComplete(webID)
 end
 AddEvent("OnWebLoadComplete", Editor_OnWebLoadComplete)
 
+function Editor_HandleCreateObject(x, y, z)
+  -- Create object
+  if (EditorPendingData['rx'] ~= nil and EditorPendingData['sx'] ~= nil) then
+    CallRemoteEvent('CreateObject', EditorPendingID, x, y, z, EditorPendingData['rx'], EditorPendingData['ry'], EditorPendingData['rz'], EditorPendingData['sx'], EditorPendingData['sy'], EditorPendingData['sz'])
+  else
+    CallRemoteEvent('CreateObject', EditorPendingID, x, y, z)
+  end
+
+  -- Extra
+  if (EditorPendingData['extra'] ~= nil) then
+    for _, v in ipairs(EditorPendingData['extra']) do
+      CallRemoteEvent('CreateObject', v['modelID'], x + v['relx'], y + v['rely'], z + v['relz'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
+    end
+  end
+end
+
 function Editor_OnKeyRelease(key)
   if key == 'P' then
     CallRemoteEvent('SetPlayerEditor', EditorState == EDITOR_CLOSED)
@@ -69,11 +86,7 @@ function Editor_OnKeyRelease(key)
     local x, y, z, distance = GetMouseHitLocation()
 
     if EditorPendingType == EDITOR_TYPE_OBJECT then
-      if (EditorPendingData['rx'] ~= nil and EditorPendingData['sx'] ~= nil) then
-        CallRemoteEvent('CreateObject', EditorPendingID, x, y, z, EditorPendingData['rx'], EditorPendingData['ry'], EditorPendingData['rz'], EditorPendingData['sx'], EditorPendingData['sy'], EditorPendingData['sz'])
-      else
-        CallRemoteEvent('CreateObject', EditorPendingID, x, y, z)
-      end
+      Editor_HandleCreateObject(x, y, z)
     elseif EditorPendingType == EDITOR_TYPE_VEHICLE then
       CallRemoteEvent('CreateVehicle', EditorPendingID, x, y, z)
     elseif EditorPendingType == EDITOR_TYPE_WEAPON then
@@ -108,6 +121,40 @@ function Editor_OnKeyRelease(key)
       local sx, sy, sz = GetObjectScale(EditorSelectedObject)
 
       Editor_CreateObjectPlacement(_objectID, rx, ry, rz, sx, sy, sz)
+
+      -- Save highlighted objects
+      if #EditorHighlightedObjects > 0 then
+        local x, y, z = GetObjectLocation(EditorSelectedObject)
+        local _extra = {}
+
+        for _, v in ipairs(EditorHighlightedObjects) do
+          local vx, vy, vz = GetObjectLocation(v)
+          local vrx, vry, vrz = GetObjectRotation(v)
+          local vsx, vsy, vsz = GetObjectScale(v)
+
+          local _object = {}
+          _object['modelID'] = GetObjectModel(v)
+          
+          -- Relative position
+          _object['relx'] = vx - x
+          _object['rely'] = vy - y
+          _object['relz'] = vz - z
+
+          -- Rotation
+          _object['rx'] = vrx
+          _object['ry'] = vry
+          _object['rz'] = vrz
+
+          -- Scale
+          _object['sx'] = vsx
+          _object['sy'] = vsy
+          _object['sz'] = vsz
+
+          table.insert(_extra, _object)
+        end
+
+        EditorPendingData['extra'] = _extra
+      end
     end
   elseif (key == 'G' and EditorState == EDITOR_OPEN) then 
     local x, y, z, distance = GetMouseHitLocation()
@@ -186,6 +233,7 @@ function Editor_CreateObjectPlacement(objectID, rx, ry, rz, sx, sy, sz)
   EditorPendingData = {}
   EditorPendingPlacement = true
 
+  -- Save rotation and scale
   if (rx ~= nil and sx ~= nil) then
     EditorPendingData['rx'] = rx
     EditorPendingData['ry'] = ry
@@ -237,35 +285,66 @@ end
 AddEvent('OnRenderHUD', Editor_OnRenderHUD)
 
 function Editor_OnServerObjectCreate(object)
-  EditorPendingPlacement = false
+  if EditorPendingPlacement then
+    EditorPendingPlacement = false
   
-  if EditorPendingType == EDITOR_TYPE_OBJECT then
+    if EditorPendingType == EDITOR_TYPE_OBJECT then
+      Delay(100, function(object)
+        Editor_SelectObject(object)
+      end, object)
+    end
+  else
+    -- Add to highlight
     Delay(100, function(object)
-      Editor_SelectObject(object)
+      SetObjectOutline(object, true)
+      table.insert(EditorHighlightedObjects, object)
     end, object)
   end
 end
 AddRemoteEvent('OnServerObjectCreate', Editor_OnServerObjectCreate)
 
-function Editor_SelectObject(object)
-  -- Update old object
-  if EditorSelectedObject ~= 0 then
-    SetObjectEditable(EditorSelectedObject, EDIT_NONE)
-    SetObjectOutline(EditorSelectedObject, false)
-
-    if EditorSelectedObjectEdited then Editor_SyncObject(EditorSelectedObject) end
-    EditorSelectedObject = 0
+function table.contains(table, value)
+  for _, v in ipairs(table) do
+    if value == v then
+        return true
+    end
   end
 
-  -- Select new object
-  if IsValidObject(object) then
-    SetObjectEditable(object, EditorSelectedObjectMode)
-    SetObjectOutline(object, true)
+  return false
+end
 
-    SetInputMode(INPUT_GAMEANDUI)
+function Editor_SelectObject(object)
+  if ((IsCtrlPressed() or IsShiftPressed()) and IsValidObject(object)) then
+    if not table.contains(EditorHighlightedObjects, object) then
+      SetObjectOutline(object, true)
+      table.insert(EditorHighlightedObjects, object)
+    end
+  else
+    -- Unhighlight objects
+    for _, v in ipairs(EditorHighlightedObjects) do
+      SetObjectOutline(v, false)
+    end
+    EditorHighlightedObjects = {}
 
-    EditorSelectedObjectEdited = false
-    EditorSelectedObject = object
+    -- Update old object
+    if EditorSelectedObject ~= 0 then
+      SetObjectEditable(EditorSelectedObject, EDIT_NONE)
+      SetObjectOutline(EditorSelectedObject, false)
+
+      if EditorSelectedObjectEdited then Editor_SyncObject(EditorSelectedObject) end
+      EditorSelectedObject = 0
+    end
+
+    -- Select new object
+    if IsValidObject(object) then
+      SetObjectEditable(object, EditorSelectedObjectMode)
+      SetObjectOutline(object, true)
+
+      SetInputMode(INPUT_GAMEANDUI)
+
+      EditorSelectedObjectEdited = false
+      EditorSelectedObject = object
+    end
   end
 end
 
