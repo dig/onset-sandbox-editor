@@ -37,13 +37,13 @@ function Editor_LoadWorld()
   if EditorWorldLoaded then return end
   EditorWorldLoaded = true
 
-  AddPlayerChatAll('Server: Attempting to load world.')
+  print('Server: Attempting to load world.')
 
   local _table = File_LoadJSONTable('world.json')
   for _,v in pairs(_table) do
     Editor_CreateObject(nil, v['modelID'], v['x'], v['y'], v['z'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
   end
 
-  AddPlayerChatAll('Server: World loaded!')
+  print('Server: World loaded!')
 end
 AddEvent('OnPackageStart', Editor_LoadWorld)
