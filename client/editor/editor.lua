@@ -28,6 +28,7 @@ local EditorHighlightedObjects = {}
 
 local EditorLastSyncData = {}
 local EditorLastClick = 0
+local EditorLastChatState = false
 
 local TOTAL_VEHICLES = 25
 local TOTAL_WEAPONS = 21
@@ -200,7 +201,6 @@ function Editor_OnKeyPress(key)
   local bDoubleClick = GetTimeSeconds() <= (EditorLastClick + 0.25)
 
   if (key == 'Left Mouse Button' and bDoubleClick and EditorState == EDITOR_OPEN) then 
-    AddPlayerChat('Left double click.')
     local EntityType, EntityId = GetMouseHitEntity()
     if (EntityType == HIT_OBJECT and EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
       Editor_SelectObject(EntityId)
@@ -216,6 +216,7 @@ function Editor_OnServerChangeEditor(bEnabled)
 
   if bEnabled then
     SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
+    SetInputMode(INPUT_GAMEANDUI)
 
     Delay(500, function()
       ExecuteWebJS(EditorObjectsUI, 'Load (' .. GetObjectModelCount() .. ', ' .. TOTAL_VEHICLES .. ', ' .. TOTAL_WEAPONS .. ', ' .. TOTAL_CLOTHING .. ')')
@@ -478,3 +479,20 @@ function Editor_OnPlayerSpawn()
   end
 end
 AddEvent('OnPlayerSpawn', Editor_OnPlayerSpawn)
+AddRemoteEvent('SetEditorSpeed', SetObjectEditorSpeed)
+
+function Editor_OnPlayerChatWindow(bEnabled)
+  if (not bEnabled and EditorState == EDITOR_OPEN) then
+    ShowMouseCursor(true)
+    SetInputMode(INPUT_GAMEANDUI)
+  end
+end
+AddEvent('OnPlayerChatWindow', Editor_OnPlayerChatWindow)
+
+function Editor_CallChatWindowEvent()
+  if IsChatFocus() ~= EditorLastChatState then
+    CallEvent('OnPlayerChatWindow', IsChatFocus())
+    EditorLastChatState = IsChatFocus()
+  end
+end
+CreateTimer(Editor_CallChatWindowEvent, 100)
