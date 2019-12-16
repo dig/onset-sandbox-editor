@@ -1,6 +1,17 @@
 # onset-sandbox-editor
 Authors: Digital
 
+#### Features
+* Camera.
+* Spawn objects, weapons, vehicles & clothing.
+* World saving and loads on server start.
+* World auto saves every 15 minutes.
+* Clothing fully synced.
+* Copy pasting objects (rotation & scale).
+* Select multiple objects.
+* Delete object(s).
+* Move, scale, rotate and copy object(s).
+
 #### Installation
 Create a folder inside your servers package folder called sandbox, download all files from this repository and place them inside the sandbox folder.
 Edit your server_config.json to install sandbox as a package.
