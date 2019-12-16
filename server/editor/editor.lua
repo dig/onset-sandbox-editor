@@ -25,12 +25,23 @@ function Editor_CreateObject(player, objectID, x, y, z, rx, ry, rz, sx, sy, sz)
       SetObjectScale(_object, sx, sy, sz)
     end
 
-    CallRemoteEvent(player, 'OnServerObjectCreate', _object)
+    table.insert(EditorObjects, _object)
+    if player ~= nil then
+      CallRemoteEvent(player, 'OnServerObjectCreate', _object)
+    end
   end
 end
 AddRemoteEvent('CreateObject', Editor_CreateObject)
 
 function Editor_DeleteObject(player, object)
+  local _index = 0
+  for i,v in pairs(EditorObjects) do
+    if v == object then
+      _index = i
+    end
+  end
+
+  table.remove(EditorObjects, _index)
   DestroyObject(object)
 end
 AddRemoteEvent('DeleteObject', Editor_DeleteObject)

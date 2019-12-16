@@ -3,7 +3,10 @@
   "version": "1.0",
   "server_scripts": [
     "server/base/base.lua",
-    "server/editor/editor.lua"
+    "server/editor/editor.lua",
+    "server/save/save.lua",
+    "common/json.lua",
+    "common/file.lua"
   ],
   "client_scripts": [
     "client/editor/editor.lua"
