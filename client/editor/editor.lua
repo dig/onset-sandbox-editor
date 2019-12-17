@@ -222,7 +222,7 @@ function Editor_OnKeyPress(key)
         local dx, dy, dz = GetDoorLocation(v)
         local distance = GetDistanceSquared3D(x, y, z, dx, dy, dz)
 
-        if (distance <= 100000 and distance < _dis) then
+        if (distance <= 150000 and distance < _dis) then
           EntityId = v
           _dis = distance
         end

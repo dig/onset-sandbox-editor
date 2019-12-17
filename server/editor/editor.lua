@@ -1,6 +1,23 @@
 local EditorDoorData = {}
 local DoorConfig = {
-  [1]=90
+  [6]=180,
+  [17]=180,
+  [18]=180,
+  [19]=180,
+  [26]=180,
+  [27]=180,
+  [28]=180,
+  [29]=180,
+  [30]=180,
+  [31]=180,
+  [32]=180,
+  [33]=180,
+  [34]=180,
+  [35]=0,
+  [36]=270,
+  [37]=270,
+  [38]=270,
+  [39]=270
 }
 
 function Editor_SetPlayerEditor(player, bEnable)
@@ -97,7 +114,7 @@ function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
 
   local _AddYaw = DoorConfig[tonumber(doorID)]
   if _AddYaw == nil then
-    _AddYaw = 0
+    _AddYaw = 90
   end
 
   local _door = CreateDoor(doorID, x, y, z, yaw + _AddYaw, true)
