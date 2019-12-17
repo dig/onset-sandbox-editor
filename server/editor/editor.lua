@@ -176,7 +176,7 @@ AddRemoteEvent('SetDoorToObject', Editor_SetDoorToObject)
 function Editor_CreateFirework(player, x, y, z)
   local _fireworkID = Random(1, 13)
   for _,v in pairs(GetAllPlayers()) do
-    CallRemoteEvent(player, 'OnServerFireworkCreate', _fireworkID, x, y, z)
+    CallRemoteEvent(v, 'OnServerFireworkCreate', _fireworkID, x, y, z)
   end
 end
 AddRemoteEvent('CreateFirework', Editor_CreateFirework)
