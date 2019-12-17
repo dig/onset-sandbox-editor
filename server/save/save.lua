@@ -69,8 +69,10 @@ function Editor_LoadWorld()
         Editor_CreateDoor(v['doorID'], v['x'], v['y'], v['z'], v['yaw'])
       end
     end
-  end
 
-  print('Server: World loaded!')
+    print('Server: World loaded!')
+  else
+    print('Server: No world.json found in root server directory, one will be made next time the server saves.')
+  end
 end
 AddEvent('OnPackageStart', Editor_LoadWorld)

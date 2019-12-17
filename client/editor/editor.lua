@@ -40,13 +40,13 @@ function Editor_OnPackageStart()
   -- Load bottom left information
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorInfoUI, 0.0, 0.6, 0.4, 1.0)
-  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/information.html')
+  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/information/information.html')
   SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
 
   -- Load objects list
   EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorObjectsUI, 0.8, 0.0, 1.0, 1.0)
-  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/objects.html')
+  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/objects/objects.html')
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
