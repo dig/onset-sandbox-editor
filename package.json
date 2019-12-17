@@ -5,11 +5,13 @@
     "server/base/base.lua",
     "server/editor/editor.lua",
     "server/save/save.lua",
+    "server/scoreboard/scoreboard.lua",
     "common/json.lua",
     "common/file.lua"
   ],
   "client_scripts": [
-    "client/editor/editor.lua"
+    "client/editor/editor.lua",
+    "client/scoreboard/scoreboard.lua"
   ],
   "files": [
     "client/editor/files/ui/information/information.html",
@@ -94,6 +96,13 @@
     "client/editor/files/doors/37.jpg",
     "client/editor/files/doors/38.jpg",
     "client/editor/files/doors/39.jpg",
-    "client/editor/files/doors/40.jpg"
+    "client/editor/files/doors/40.jpg",
+    "client/scoreboard/files/scoreboard.html",
+    "client/scoreboard/files/scoreboard.css",
+    "client/scoreboard/files/scoreboard.js",
+    "client/scoreboard/files/kills.png",
+    "client/scoreboard/files/deaths.png",
+    "client/scoreboard/files/playtime.png",
+    "client/scoreboard/files/ping.png"
   ]
 }
