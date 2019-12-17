@@ -25,6 +25,14 @@ body.center {
   width: 50%;
   height: 50%;
   background: #171717;
+  position: relative;
+}
+
+.table {
+  width: 100%;
+  height: calc(100% - 20px);
+  overflow-y: auto;
+  position: relative;
 }
 
 table {
@@ -45,6 +53,11 @@ table tr:nth-child(even)  {
   background: #343434;
 }
 
+table tr:nth-child(1) {
+  position: sticky;
+  top: 0;
+}
+
 table tr:nth-child(1), table tr:nth-child(1) td {
   height: 36px;
   text-align: left;
@@ -59,4 +72,37 @@ table tr:nth-child(1) td:first-child {
 
 table tr:nth-child(1) td > img {
   height: 60%;
+}
+
+::-webkit-scrollbar {
+  width: 13px;
+}
+
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #343434
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #343434;
+}
+
+.server {
+  height: 20px;
+  width: 100%;
+  color: #727272;
+  position: absolute;
+  bottom: 0;
+  padding: 0 7px;
+}
+
+.server > .name {
+  float: left;
+}
+
+.server > .players {
+  float: right;
 }

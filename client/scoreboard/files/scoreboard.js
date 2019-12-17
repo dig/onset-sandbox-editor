@@ -1,6 +1,9 @@
 function ResetScoreboard() {
   let table = document.getElementsByTagName('table')[0];
   table.getElementsByTagName("tbody")[0].innerHTML = table.rows[0].innerHTML;
+
+  let tableOuter = document.getElementsByClassName('table')[0];
+  tableOuter.scrollTop = 0;
 }
 
 function AddPlayer(name, kills, deaths, playtime, ping) {
@@ -26,4 +29,12 @@ function SecondsToTime(d) {
   var mDisplay = m > 0 ? m + (m == 1 ? " min, " : " mins, ") : "";
   var sDisplay = s > 0 ? s + (s == 1 ? " sec" : " secs") : "";
   return hDisplay + mDisplay + sDisplay; 
+}
+
+function SetInformation(name, players, maxplayers) {
+  let infoName = document.getElementsByClassName('name')[0];
+  infoName.getElementsByTagName('small')[0].innerHTML = `Server: ${name}`;
+
+  let infoPlayers = document.getElementsByClassName('players')[0];
+  infoPlayers.getElementsByTagName('small')[0].innerHTML = `Players: ${players}/${maxplayers}`;
 }

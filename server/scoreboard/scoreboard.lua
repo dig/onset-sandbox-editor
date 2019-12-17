@@ -25,7 +25,7 @@ function Scoreboard_RequestUpdate(player)
     }
   end
 
-  CallRemoteEvent(player, 'OnServerScoreboardUpdate', _send)
+  CallRemoteEvent(player, 'OnServerScoreboardUpdate', _send, GetServerName(), #GetAllPlayers(), GetMaxPlayers())
 end
 AddRemoteEvent('RequestScoreboardUpdate', Scoreboard_RequestUpdate)
 
