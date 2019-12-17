@@ -1,4 +1,5 @@
-local EditorDoorData = {}
+EditorDoorData = {}
+
 local DoorConfig = {
   [6]=180,
   [17]=180,
@@ -109,6 +110,22 @@ function Editor_CreateDoorObject(player, objectID, doorID, x, y, z, yaw)
 end
 AddRemoteEvent('CreateDoorObject', Editor_CreateDoorObject)
 
+function Editor_CreateDoor(doorID, x, y, z, yaw)
+  local _AddYaw = DoorConfig[tonumber(doorID)]
+  if _AddYaw == nil then
+    _AddYaw = 90
+  end
+
+  local _door = CreateDoor(doorID, x, y, z, yaw + _AddYaw)
+
+  local _data = {}
+  _data['modelID'] = 767
+  _data['yaw'] = yaw
+  EditorDoorData[_door] = _data
+
+  table.insert(EditorDoors, _door)
+end
+
 function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
   if not IsValidObject(object) then return end
 
@@ -124,6 +141,7 @@ function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
   _data['yaw'] = yaw
   EditorDoorData[_door] = _data
 
+  table.insert(EditorDoors, _door)
   DestroyObject(object)
 end
 AddRemoteEvent('SetObjectToDoor', Editor_SetObjectToDoor)
@@ -137,6 +155,18 @@ function Editor_SetDoorToObject(player, door)
 
   local _doorID = GetDoorModel(door)
   local x, y, z = GetDoorLocation(door)
+
+  -- Remove door from table
+  local _index = 0
+  for i,v in pairs(EditorDoors) do
+    if v == door then
+      _index = i
+    end
+  end
+
+  if _index > 0 then
+    table.remove(EditorDoors, _index)
+  end
 
   Editor_CreateDoorObject(player, _objectID, _doorID, x, y, z, yaw)
   DestroyDoor(door)

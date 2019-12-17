@@ -1,9 +1,11 @@
 EditorObjects = {}
+EditorDoors = {}
 EditorWorldLoaded = false
 
 function Editor_SaveWorld()
   local _table = {}
 
+  -- Save objects
   for _,v in pairs(EditorObjects) do
     local _object = {}
 
@@ -26,6 +28,25 @@ function Editor_SaveWorld()
   
     table.insert(_table, _object)
   end
+
+  -- Save doors
+  for _,v in pairs(EditorDoors) do
+    local _door = {}
+
+    local x, y, z = GetDoorLocation(v)
+    local yaw = EditorDoorData[v]['yaw']
+    if yaw == nil then
+      yaw = 0
+    end
+
+    _door['doorID'] = GetDoorModel(v)
+    _door['x'] = x
+    _door['y'] = y
+    _door['z'] = z
+    _door['yaw'] = yaw
+  
+    table.insert(_table, _door)
+  end
   
   File_SaveJSONTable('world.json', _table)
   AddPlayerChatAll('Server: Saved the world.')
@@ -41,7 +62,11 @@ function Editor_LoadWorld()
 
   local _table = File_LoadJSONTable('world.json')
   for _,v in pairs(_table) do
-    Editor_CreateObject(nil, v['modelID'], v['x'], v['y'], v['z'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
+    if v['modelID'] ~= nil then
+      Editor_CreateObject(nil, v['modelID'], v['x'], v['y'], v['z'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
+    else
+      Editor_CreateDoor(v['doorID'], v['x'], v['y'], v['z'], v['yaw'])
+    end
   end
 
   print('Server: World loaded!')
