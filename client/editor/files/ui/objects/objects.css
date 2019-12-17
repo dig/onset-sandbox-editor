@@ -18,13 +18,13 @@ body {
   position: absolute;
   right: 0;
   top: 0;
-  height: 100%;
+  height: calc(100% - 24px);
   width: 350px;
   background: #171717;
 }
 
 .background > .toolbar {
-  height: 15px;
+  height: 18px;
   width: 100%;
   background: #090909;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -41,8 +41,8 @@ body {
 
 .background > .toolbar > .tool {
   float: right;
-  height: 15px;
-  width: 15px;
+  height: 18px;
+  width: 18px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -89,7 +89,7 @@ body {
 }
 
 .background > .content {
-  height: calc(100% - 70px - 15px - 2px);
+  height: calc(100% - 70px - 18px);
   width: 100%;
 }
 

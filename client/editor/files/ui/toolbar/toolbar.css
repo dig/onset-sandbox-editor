@@ -1,0 +1,25 @@
+* {
+  color: #fff;
+  cursor: default;
+  font-family: Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.toolbar {
+  background: #090909;
+  height: 18px;
+  width: calc(100% + 7px);
+  position: absolute;
+  top: 0;
+  left: -7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}

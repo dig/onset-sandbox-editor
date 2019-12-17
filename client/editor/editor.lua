@@ -14,6 +14,8 @@ local UIState = UI_SHOWN
 
 local EditorInfoUI = 0
 local EditorObjectsUI = 0
+local EditorToolbarUI = 0
+local EditorFooterUI = 0
 
 local EditorLastLocation = {}
 
@@ -37,17 +39,29 @@ local TOTAL_DOORS = 40
 local TOTAL_CLOTHING = 30
 
 function Editor_OnPackageStart()
-  -- Load bottom left information
+  -- Load information
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorInfoUI, 0.0, 0.6, 0.4, 1.0)
   LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/information/information.html')
   SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
 
-  -- Load objects list
-  EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  -- Load objects
+  EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 2, 60)
   SetWebAnchors(EditorObjectsUI, 0.8, 0.0, 1.0, 1.0)
   LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/objects/objects.html')
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
+
+  -- Load toolbar
+  EditorToolbarUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.2)
+  LoadWebFile(EditorToolbarUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/toolbar/toolbar.html')
+  SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
+
+  -- Load footer
+  EditorFooterUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  SetWebAnchors(EditorFooterUI, 0.0, 0.0, 1.0, 1.0)
+  LoadWebFile(EditorFooterUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/footer/footer.html')
+  SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
 
@@ -55,7 +69,7 @@ function Editor_OnWebLoadComplete(webID)
   if EditorInfoUI == webID then
     -- Update information UI based on location
     local x, y, z = GetPlayerLocation()
-    ExecuteWebJS(EditorInfoUI, 'OnLocationUpdate (' .. math.floor(x) .. ', ' .. math.floor(y) .. ', ' .. math.floor(z) .. ')')
+    ExecuteWebJS(EditorFooterUI, 'OnLocationUpdate (' .. math.floor(x) .. ', ' .. math.floor(y) .. ', ' .. math.floor(z) .. ')')
   end
 end
 AddEvent("OnWebLoadComplete", Editor_OnWebLoadComplete)
@@ -181,6 +195,8 @@ function Editor_OnKeyRelease(key)
 
       SetWebVisibility(EditorInfoUI, WEB_HIDDEN)
       SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
+      SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
+      SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
     else
       UIState = UI_SHOWN
 
@@ -194,6 +210,8 @@ function Editor_OnKeyRelease(key)
 
       if EditorState == EDITOR_OPEN then
         SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
+        SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
+        SetWebVisibility(EditorFooterUI, WEB_HITINVISIBLE)
       end
     end
   end
@@ -243,6 +261,8 @@ function Editor_OnServerChangeEditor(bEnabled)
 
   if bEnabled then
     SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
+    SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
+    SetWebVisibility(EditorFooterUI, WEB_HITINVISIBLE)
     SetInputMode(INPUT_GAMEANDUI)
 
     Delay(500, function()
@@ -250,6 +270,8 @@ function Editor_OnServerChangeEditor(bEnabled)
     end)
   else
     SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
+    SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
+    SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
     SetInputMode(INPUT_GAME)
 
     EditorPendingPlacement = false
@@ -260,6 +282,11 @@ AddRemoteEvent('OnServerChangeEditor', Editor_OnServerChangeEditor)
 
 function Editor_OnLocationChange()
   local x, y, z = GetPlayerLocation()
+
+  -- Use camera if in editor
+  if EditorState == EDITOR_OPEN then
+    x, y, z = GetCameraLocation(true)
+  end
   
   -- Only update if location has changed
   if (not (EditorLastLocation[0] == x) or not (EditorLastLocation[1] == y) or not (EditorLastLocation[2] == z)) then
@@ -267,7 +294,7 @@ function Editor_OnLocationChange()
     EditorLastLocation[1] = y
     EditorLastLocation[2] = z
 
-    ExecuteWebJS(EditorInfoUI, 'OnLocationUpdate (' .. math.floor(x) .. ', ' .. math.floor(y) .. ', ' .. math.floor(z) .. ')')
+    ExecuteWebJS(EditorFooterUI, 'OnLocationUpdate (' .. math.floor(x) .. ', ' .. math.floor(y) .. ', ' .. math.floor(z) .. ')')
   end
 end
 CreateTimer(Editor_OnLocationChange, 100)
