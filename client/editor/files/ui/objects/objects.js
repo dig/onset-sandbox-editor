@@ -88,11 +88,14 @@ function LoadObjects(amount) {
 
   let appendHTML = '';
   for (let i = 1; i < amount + 1; i++) {
-    appendHTML += `<img data-id="${i}" src="http://game/objects/${i}" />`;
+    appendHTML += `<div class="item" data-id="${i}">
+      <img src="http://game/objects/${i}" />
+      <div class="top-left">${i}</div>
+    </div>`;
   }
   listbox.innerHTML += appendHTML;
 
-  let nodes = listbox.getElementsByTagName('img');
+  let nodes = listbox.getElementsByClassName('item');
   for (let i = 0; i < nodes.length; i++) {
     let node = nodes[i];
 
@@ -120,11 +123,14 @@ function LoadVehicles(amount) {
       }
     }
 
-    appendHTML += `<img data-id="${i}" src="http://game/objects/${modelID}" />`;
+    appendHTML += `<div class="item" data-id="${i}">
+      <img src="http://game/objects/${modelID}" />
+      <div class="top-left">${i}</div>
+    </div>`;
   }
   listbox.innerHTML += appendHTML;
 
-  let nodes = listbox.getElementsByTagName('img');
+  let nodes = listbox.getElementsByClassName('item');
   for (let i = 0; i < nodes.length; i++) {
     let node = nodes[i];
 
@@ -152,11 +158,14 @@ function LoadWeapons(amount) {
       }
     }
 
-    appendHTML += `<img data-objectid="${modelID}" data-weaponid="${i}" src="http://game/objects/${modelID}" />`;
+    appendHTML += `<div class="item" data-objectid="${modelID}" data-weaponid="${i}">
+      <img src="http://game/objects/${modelID}" />
+      <div class="top-left">${i}</div>
+    </div>`;
   }
   listbox.innerHTML += appendHTML;
 
-  let nodes = listbox.getElementsByTagName('img');
+  let nodes = listbox.getElementsByClassName('item');
   for (let i = 0; i < nodes.length; i++) {
     let node = nodes[i];
 
@@ -187,11 +196,14 @@ function LoadDoors(amount) {
       }
     }
 
-    appendHTML += `<img data-objectid="${modelID}" data-doorid="${i}" src="${(isCustom ? `http://asset/sandbox/client/editor/files/doors/${i}.jpg` : `http://game/objects/${modelID}`)}" />`;
+    appendHTML += `<div class="item" data-objectid="${modelID}" data-doorid="${i}">
+      <img src="${(isCustom ? `http://asset/sandbox/client/editor/files/doors/${i}.jpg` : `http://game/objects/${modelID}`)}" />
+      <div class="top-left">${i}</div>
+    </div>`;
   }
   listbox.innerHTML += appendHTML;
 
-  let nodes = listbox.getElementsByTagName('img');
+  let nodes = listbox.getElementsByClassName('item');
   for (let i = 0; i < nodes.length; i++) {
     let node = nodes[i];
 
@@ -209,11 +221,14 @@ function LoadClothing(amount) {
 
   let appendHTML = '';
   for (let i = 1; i < amount + 1; i++) {
-    appendHTML += `<img data-id="${i}" src="http://asset/sandbox/client/editor/files/clothing/${(i == 11 ? 10 : i)}.jpg" />`;
+    appendHTML += `<div class="item" data-id="${i}">
+      <img src="http://asset/sandbox/client/editor/files/clothing/${(i == 11 ? 10 : i)}.jpg" />
+      <div class="top-left">${i}</div>
+    </div>`;
   }
   listbox.innerHTML += appendHTML;
 
-  let nodes = listbox.getElementsByTagName('img');
+  let nodes = listbox.getElementsByClassName('item');
   for (let i = 0; i < nodes.length; i++) {
     let node = nodes[i];
 
