@@ -2,6 +2,7 @@ const STATE = {
   OBJECTS: 'OBJECTS',
   VEHICLES: 'VEHICLES',
   WEAPONS: 'WEAPONS',
+  DOORS: 'DOORS',
   CLOTHING: 'CLOTHING'
 };
 
@@ -10,13 +11,14 @@ let state = {
   objectLoaded : false,
   vehicleLoaded : false,
   weaponLoaded : false,
+  doorLoaded : false,
   clothingLoaded : false
 };
 
 function SetState(to) {
   let from = state.state;
 
-  let arr = ['objects', 'vehicles', 'weapons', 'clothing'];
+  let arr = ['objects', 'vehicles', 'weapons', 'doors', 'clothing'];
   for (let i = 0; i < arr.length; i++) {
     document.getElementById(arr[i]).classList.add('hidden');
     document.getElementById(`tab-${arr[i]}`).classList.remove('active');
@@ -34,6 +36,10 @@ function SetState(to) {
     case STATE.WEAPONS:
       document.getElementById('weapons').classList.remove('hidden');
       document.getElementById('tab-weapons').classList.add('active');
+      break;
+    case STATE.DOORS:
+      document.getElementById('doors').classList.remove('hidden');
+      document.getElementById('tab-doors').classList.add('active');
       break;
     case STATE.CLOTHING:
       document.getElementById('clothing').classList.remove('hidden');
@@ -57,15 +63,20 @@ DocReady(function() {
     SetState(STATE.WEAPONS);
   };
 
+  document.getElementById('tab-doors').onclick = function() {
+    SetState(STATE.DOORS);
+  };
+
   document.getElementById('tab-clothing').onclick = function() {
     SetState(STATE.CLOTHING);
   };
 });
 
-function Load(objectCount, vehicleCount, weaponCount, clothingCount) {
+function Load(objectCount, vehicleCount, weaponCount, clothingCount, doorCount) {
   LoadObjects(objectCount);
   LoadVehicles(vehicleCount);
   LoadWeapons(weaponCount);
+  LoadDoors(doorCount);
   LoadClothing(clothingCount);
 }
 
@@ -151,6 +162,41 @@ function LoadWeapons(amount) {
 
     node.onclick = function() {
       CallEvent('CreateWeaponPlacement', this.dataset.objectid, this.dataset.weaponid);
+    };
+  }
+}
+
+function LoadDoors(amount) {
+  if (state.doorLoaded) return;
+  state.doorLoaded = true;
+
+  let listbox = document.getElementById('doors');
+
+  let appendHTML = '';
+  for (let i = 1; i < amount + 1; i++) {
+    let modelID = 0;
+    let isCustom = false;
+
+    for (let key in DOOR_CONFIG) {
+      let doorCfg = DOOR_CONFIG[key];
+      
+      if (doorCfg.doorID == i) {
+        modelID = doorCfg.modelID;
+        isCustom = doorCfg.pictureID != null;
+        break;
+      }
+    }
+
+    appendHTML += `<img data-objectid="${modelID}" data-doorid="${i}" src="${(isCustom ? `http://asset/sandbox/client/editor/files/doors/${i}.jpg` : `http://game/objects/${modelID}`)}" />`;
+  }
+  listbox.innerHTML += appendHTML;
+
+  let nodes = listbox.getElementsByTagName('img');
+  for (let i = 0; i < nodes.length; i++) {
+    let node = nodes[i];
+
+    node.onclick = function() {
+      CallEvent('CreateDoorPlacement', this.dataset.objectid, this.dataset.doorid);
     };
   }
 }

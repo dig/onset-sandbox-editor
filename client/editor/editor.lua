@@ -7,6 +7,7 @@ local UI_HIDDEN = 1
 local EDITOR_TYPE_OBJECT = 0
 local EDITOR_TYPE_VEHICLE = 1
 local EDITOR_TYPE_WEAPON = 2
+local EDITOR_TYPE_DOOR = 3
 
 local EditorState = EDITOR_CLOSED
 local UIState = UI_SHOWN
@@ -32,6 +33,7 @@ local EditorLastChatState = false
 
 local TOTAL_VEHICLES = 25
 local TOTAL_WEAPONS = 21
+local TOTAL_DOORS = 40
 local TOTAL_CLOTHING = 30
 
 function Editor_OnPackageStart()
@@ -97,6 +99,8 @@ function Editor_OnKeyRelease(key)
       CallRemoteEvent('CreateVehicle', EditorPendingID, x, y, z)
     elseif EditorPendingType == EDITOR_TYPE_WEAPON then
       CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData['weaponID'], x, y, z + 70)
+    elseif EditorPendingType == EDITOR_TYPE_DOOR then
+      CallRemoteEvent('CreateDoorObject', EditorPendingID, EditorPendingData['doorID'], x, y, z)
     end
   elseif (key == 'Left Alt' and EditorState == EDITOR_OPEN and EditorSelectedObject ~= 0) then 
     if EditorSelectedObjectMode == EDIT_LOCATION then
@@ -202,8 +206,31 @@ function Editor_OnKeyPress(key)
 
   if (key == 'Left Mouse Button' and bDoubleClick and EditorState == EDITOR_OPEN) then 
     local EntityType, EntityId = GetMouseHitEntity()
+
     if (EntityType == HIT_OBJECT and EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
-      Editor_SelectObject(EntityId)
+      if IsValidObject(EntityId) then
+        Editor_SelectObject(EntityId)
+      elseif IsValidDoor(EntityId) then
+        Editor_SelectDoor(EntityId)
+      end
+    elseif EntityType == HIT_OBJECT then
+      local x, y, z = GetMouseHitLocation()
+
+      -- Temp solution because we can't get doors from GetMouseHitEntity()
+      local _dis = 1000000000
+      for _,v in pairs(GetStreamedDoors()) do
+        local dx, dy, dz = GetDoorLocation(v)
+        local distance = GetDistanceSquared3D(x, y, z, dx, dy, dz)
+
+        if (distance <= 100000 and distance < _dis) then
+          EntityId = v
+          _dis = distance
+        end
+      end
+
+      if (EntityId ~= 0 and EditorSelectedObject ~= EntityId) then
+        Editor_SelectDoor(EntityId)
+      end
     end
   end
 end
@@ -219,7 +246,7 @@ function Editor_OnServerChangeEditor(bEnabled)
     SetInputMode(INPUT_GAMEANDUI)
 
     Delay(500, function()
-      ExecuteWebJS(EditorObjectsUI, 'Load (' .. GetObjectModelCount() .. ', ' .. TOTAL_VEHICLES .. ', ' .. TOTAL_WEAPONS .. ', ' .. TOTAL_CLOTHING .. ')')
+      ExecuteWebJS(EditorObjectsUI, 'Load (' .. GetObjectModelCount() .. ', ' .. TOTAL_VEHICLES .. ', ' .. TOTAL_WEAPONS .. ', ' .. TOTAL_CLOTHING .. ', ' .. TOTAL_DOORS .. ')')
     end)
   else
     SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
@@ -295,6 +322,21 @@ function Editor_CreateWeaponPlacement(objectID, weaponID)
 end
 AddEvent('CreateWeaponPlacement', Editor_CreateWeaponPlacement)
 
+function Editor_CreateDoorPlacement(objectID, doorID)
+  objectID = tonumber(objectID)
+  doorID = tonumber(doorID)
+
+  if not EditorState == EDITOR_OPEN then return end
+  if (objectID <= 0 or objectID > GetObjectModelCount()) then return end
+  if (doorID <= 0 or doorID > TOTAL_DOORS) then return end
+
+  EditorPendingType = EDITOR_TYPE_DOOR
+  EditorPendingID = objectID
+  EditorPendingData['doorID'] = doorID
+  EditorPendingPlacement = true
+end
+AddEvent('CreateDoorPlacement', Editor_CreateDoorPlacement)
+
 function Editor_OnRenderHUD()
   -- Draw yellow circle for object placement
   if (EditorPendingPlacement and EditorState == EDITOR_OPEN) then
@@ -307,23 +349,24 @@ end
 AddEvent('OnRenderHUD', Editor_OnRenderHUD)
 
 function Editor_OnServerObjectCreate(object)
-  if EditorPendingPlacement then
+  local _doorID = GetObjectPropertyValue(object, 'doorID')
+
+  if (EditorPendingPlacement or _doorID ~= nil) then
     EditorPendingPlacement = false
   
-    if EditorPendingType == EDITOR_TYPE_OBJECT then
-      Delay(100, function(object)
-        Editor_SelectObject(object)
-      end, object)
+    if (EditorPendingType == EDITOR_TYPE_OBJECT or EditorPendingType == EDITOR_TYPE_DOOR or _doorID ~= nil) then
+      Editor_SelectObject(object)
     end
   else
     -- Add to highlight
-    Delay(100, function(object)
-      SetObjectOutline(object, true)
-      table.insert(EditorHighlightedObjects, object)
-    end, object)
+    SetObjectOutline(object, true)
+    CallEvent('OnObjectToggleSelect', object, true)
+    table.insert(EditorHighlightedObjects, object)
   end
 end
-AddRemoteEvent('OnServerObjectCreate', Editor_OnServerObjectCreate)
+AddRemoteEvent('OnServerObjectCreate', function(object)
+  Delay(100, Editor_OnServerObjectCreate, object)
+end)
 
 function table.contains(table, value)
   for _, v in ipairs(table) do
@@ -339,12 +382,14 @@ function Editor_SelectObject(object)
   if ((IsCtrlPressed() or IsShiftPressed()) and IsValidObject(object)) then
     if not table.contains(EditorHighlightedObjects, object) then
       SetObjectOutline(object, true)
+      CallEvent('OnObjectToggleSelect', object, true)
       table.insert(EditorHighlightedObjects, object)
     end
   else
     -- Unhighlight objects
     for _, v in ipairs(EditorHighlightedObjects) do
       SetObjectOutline(v, false)
+      CallEvent('OnObjectToggleSelect', v, false)
     end
     EditorHighlightedObjects = {}
 
@@ -352,6 +397,7 @@ function Editor_SelectObject(object)
     if EditorSelectedObject ~= 0 then
       SetObjectEditable(EditorSelectedObject, EDIT_NONE)
       SetObjectOutline(EditorSelectedObject, false)
+      CallEvent('OnObjectToggleSelect', EditorSelectedObject, false)
 
       if EditorSelectedObjectEdited then Editor_SyncObject(EditorSelectedObject) end
       EditorSelectedObject = 0
@@ -361,6 +407,7 @@ function Editor_SelectObject(object)
     if IsValidObject(object) then
       SetObjectEditable(object, EditorSelectedObjectMode)
       SetObjectOutline(object, true)
+      CallEvent('OnObjectToggleSelect', object, true)
 
       SetInputMode(INPUT_GAMEANDUI)
 
@@ -370,6 +417,10 @@ function Editor_SelectObject(object)
       Editor_UpdateSyncData(object)
     end
   end
+end
+
+function Editor_SelectDoor(door)
+  CallRemoteEvent('SetDoorToObject', door)
 end
 
 function Editor_UpdateSyncData(object)
@@ -496,3 +547,15 @@ function Editor_CallChatWindowEvent()
   end
 end
 CreateTimer(Editor_CallChatWindowEvent, 100)
+
+function Editor_OnObjectToggleSelect(object, state)
+  -- Turn door object into door
+  local _doorID = GetObjectPropertyValue(object, 'doorID')
+  if (_doorID ~= nil and not state) then
+    local x, y, z = GetObjectLocation(object)
+    local _, yaw = GetObjectRotation(object)
+
+    CallRemoteEvent('SetObjectToDoor', object, _doorID, x, y, z, yaw)
+  end
+end
+AddEvent('OnObjectToggleSelect', Editor_OnObjectToggleSelect)

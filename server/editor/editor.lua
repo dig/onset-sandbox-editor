@@ -1,3 +1,8 @@
+local EditorDoorData = {}
+local DoorConfig = {
+  [1]=90
+}
+
 function Editor_SetPlayerEditor(player, bEnable)
   if not IsValidPlayer(player) then return end
   
@@ -41,7 +46,10 @@ function Editor_DeleteObject(player, object)
     end
   end
 
-  table.remove(EditorObjects, _index)
+  if _index > 0 then
+    table.remove(EditorObjects, _index)
+  end
+
   DestroyObject(object)
 end
 AddRemoteEvent('DeleteObject', Editor_DeleteObject)
@@ -70,6 +78,53 @@ function Editor_CreatePickup(player, objectID, weaponID, x, y, z)
   CallRemoteEvent(player, 'OnServerObjectCreate', _object)
 end
 AddRemoteEvent('CreatePickup', Editor_CreatePickup)
+
+function Editor_CreateDoorObject(player, objectID, doorID, x, y, z, yaw)
+  local _object = CreateObject(objectID, x, y, z)
+
+  if yaw ~= nil then
+    local rx, ry, rz = GetObjectRotation(_object)
+    SetObjectRotation(_object, rx, yaw, rz)
+  end
+
+  SetObjectPropertyValue(_object, 'doorID', doorID, true)
+  CallRemoteEvent(player, 'OnServerObjectCreate', _object)
+end
+AddRemoteEvent('CreateDoorObject', Editor_CreateDoorObject)
+
+function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
+  if not IsValidObject(object) then return end
+
+  local _AddYaw = DoorConfig[tonumber(doorID)]
+  if _AddYaw == nil then
+    _AddYaw = 0
+  end
+
+  local _door = CreateDoor(doorID, x, y, z, yaw + _AddYaw, true)
+
+  local _data = {}
+  _data['modelID'] = GetObjectModel(object)
+  _data['yaw'] = yaw
+  EditorDoorData[_door] = _data
+
+  DestroyObject(object)
+end
+AddRemoteEvent('SetObjectToDoor', Editor_SetObjectToDoor)
+
+function Editor_SetDoorToObject(player, door)
+  if not IsValidDoor(door) then return end
+
+  local _data = EditorDoorData[door]
+  local _objectID = _data['modelID']
+  local yaw = _data['yaw']
+
+  local _doorID = GetDoorModel(door)
+  local x, y, z = GetDoorLocation(door)
+
+  Editor_CreateDoorObject(player, _objectID, _doorID, x, y, z, yaw)
+  DestroyDoor(door)
+end
+AddRemoteEvent('SetDoorToObject', Editor_SetDoorToObject)
 
 function Editor_CreateFirework(player, x, y, z)
   local _fireworkID = Random(1, 13)

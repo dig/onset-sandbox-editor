@@ -19,7 +19,7 @@ body {
   right: 0;
   top: 0;
   height: 100%;
-  width: 300px;
+  width: 350px;
   background: #171717;
 }
 
@@ -61,7 +61,7 @@ body {
 
 .background > .header > .item {
   float: left;
-  width: 24.999%;
+  width: 19.998%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -122,6 +122,7 @@ body {
 .background > .content > .listbox > img {
   float: left;
   width: 33.3333%;
+  height: 116.3655px;
   cursor: pointer;
 }
 
