@@ -1,0 +1,53 @@
+* {
+  color: #fff;
+  cursor: default;
+  font-family: Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.background {
+  background: #171717;
+  position: absolute;
+  right: 350px;
+  bottom: 24px;
+  width: 300px;
+  padding: 5px;
+}
+
+.background > small {
+  position: relative;
+  left: 4px;
+}
+
+.background > .row {
+  width: 100%;
+  height: 30px;
+}
+
+.background > .row > .col {
+  float: left;
+  width: 33.333%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.background > .row > .col > input {
+  width: 90%;
+  height: 20px;
+  background: #343434;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: text;
+  padding: 0 5px;
+}

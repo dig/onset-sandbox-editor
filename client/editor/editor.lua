@@ -16,6 +16,7 @@ local EditorInfoUI = 0
 local EditorObjectsUI = 0
 local EditorToolbarUI = 0
 local EditorFooterUI = 0
+local EditorPreciseUI = 0
 
 local EditorLastLocation = {}
 
@@ -24,6 +25,7 @@ local EditorPendingID = 0
 local EditorPendingData = {}
 local EditorPendingPlacement = false
 
+local EditorSelectedTimer = 0
 local EditorSelectedObject = 0
 local EditorSelectedObjectEdited = false
 local EditorSelectedObjectMode = EDIT_LOCATION
@@ -62,6 +64,12 @@ function Editor_OnPackageStart()
   SetWebAnchors(EditorFooterUI, 0.0, 0.0, 1.0, 1.0)
   LoadWebFile(EditorFooterUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/footer/footer.html')
   SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
+
+  -- Load precise
+  EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  SetWebAnchors(EditorPreciseUI, 0.65, 0.7, 1.0, 1.0)
+  LoadWebFile(EditorPreciseUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/precise/precise.html')
+  SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
 
@@ -185,7 +193,7 @@ function Editor_OnKeyRelease(key)
   elseif (key == 'G' and EditorState == EDITOR_OPEN) then 
     local x, y, z, distance = GetMouseHitLocation()
     CallRemoteEvent('CreateFirework', x, y, z)
-  elseif key == 'Backspace' then 
+  elseif key == 'F10' then 
     if UIState == UI_SHOWN then
       UIState = UI_HIDDEN
 
@@ -197,6 +205,7 @@ function Editor_OnKeyRelease(key)
       SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
       SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
       SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
+      SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
     else
       UIState = UI_SHOWN
 
@@ -212,6 +221,10 @@ function Editor_OnKeyRelease(key)
         SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
         SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
         SetWebVisibility(EditorFooterUI, WEB_HITINVISIBLE)
+        
+        if EditorSelectedObject ~= 0 then
+          SetWebVisibility(EditorPreciseUI, WEB_VISIBLE)
+        end
       end
     end
   end
@@ -413,6 +426,8 @@ function Editor_SelectObject(object)
       table.insert(EditorHighlightedObjects, object)
     end
   else
+    SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
+
     -- Unhighlight objects
     for _, v in ipairs(EditorHighlightedObjects) do
       SetObjectOutline(v, false)
@@ -440,6 +455,9 @@ function Editor_SelectObject(object)
 
       EditorSelectedObjectEdited = false
       EditorSelectedObject = object
+
+      SetWebVisibility(EditorPreciseUI, WEB_VISIBLE)
+      Editor_UpdatePreciseUI(object)
 
       Editor_UpdateSyncData(object)
     end
@@ -470,7 +488,7 @@ function Editor_UpdateSyncData(object)
   EditorLastSyncData['sz'] = sz
 end
 
-function Editor_SyncObject(object)
+function Editor_SyncObject(object, ix, iy, iz, irx, iry, irz, isx, isy, isz)
   if not IsValidObject(object) then return end
 
   local lx = EditorLastSyncData['x']
@@ -488,6 +506,24 @@ function Editor_SyncObject(object)
   local x, y, z = GetObjectLocation(object)
   local rx, ry, rz = GetObjectRotation(object)
   local sx, sy, sz = GetObjectScale(object)
+
+  if ix ~= nil then
+    x = ix
+    y = iy
+    z = iz
+  end
+
+  if irx ~= nil then
+    rx = irx
+    ry = iry
+    rz = irz
+  end
+
+  if isx ~= nil then
+    sx = isx
+    sy = isy
+    sz = isz
+  end
 
   if sx == 1.0 and sy == 1.0 and sz == 1.0 then
     CallRemoteEvent('SyncObject', object, x, y, z, rx, ry, rz)
@@ -509,10 +545,49 @@ function Editor_SyncObject(object)
   Editor_UpdateSyncData(object)
 end
 
+function Editor_OnTimerTick()
+  if (EditorPreciseUI == 0 or EditorSelectedObject == 0) then return end
+  Editor_UpdatePreciseUI(EditorSelectedObject)
+end
+
+function Editor_UpdatePreciseUI(object)
+  local x, y, z = GetObjectLocation(object)
+  local rx, ry, rz = GetObjectRotation(object)
+  local sx, sy, sz = GetObjectScale(object)
+
+  ExecuteWebJS(EditorPreciseUI, 'UpdatePosition (' .. x .. ', ' .. y .. ', ' .. z .. ')')
+  ExecuteWebJS(EditorPreciseUI, 'UpdateRotation (' .. rx .. ', ' .. ry .. ', ' .. rz .. ')')
+  ExecuteWebJS(EditorPreciseUI, 'UpdateScale (' .. sx .. ', ' .. sy .. ', ' .. sz .. ')')
+end
+
+function Editor_UpdateSelectedPosition(x, y, z)
+  if EditorSelectedObject == 0 then return end
+  Editor_SyncObject(EditorSelectedObject, tonumber(x), tonumber(y), tonumber(z))
+end
+AddEvent('UpdateSelectedPosition', Editor_UpdateSelectedPosition)
+
+function Editor_UpdateSelectedRotation(x, y, z)
+  if EditorSelectedObject == 0 then return end
+  Editor_SyncObject(EditorSelectedObject, nil, nil, nil, tonumber(x), tonumber(y), tonumber(z))
+end
+AddEvent('UpdateSelectedRotation', Editor_UpdateSelectedRotation)
+
+function Editor_UpdateSelectedScale(x, y, z)
+  if EditorSelectedObject == 0 then return end
+  Editor_SyncObject(EditorSelectedObject, nil, nil, nil, nil, nil, nil, tonumber(x), tonumber(y), tonumber(z))
+end
+AddEvent('UpdateSelectedScale', Editor_UpdateSelectedScale)
+
 function Editor_OnPlayerBeginEditObject(object)
   if object == EditorSelectedObject then
     AddPlayerChat('Start sync process.')
+
+    SetWebVisibility(EditorPreciseUI, WEB_VISIBLE)
     EditorSelectedObjectEdited = true
+
+    if EditorSelectedTimer == 0 then
+      EditorSelectedTimer = CreateTimer(Editor_OnTimerTick, 50)
+    end
   end
 end
 AddEvent('OnPlayerBeginEditObject', Editor_OnPlayerBeginEditObject)
@@ -521,7 +596,13 @@ function Editor_OnPlayerEndEditObject(object)
   if (object == EditorSelectedObject and EditorSelectedObjectEdited) then
     AddPlayerChat('Synced object.')
     Editor_SyncObject(object)
+
     EditorSelectedObjectEdited = false
+
+    if EditorSelectedTimer ~= 0 then
+      DestroyTimer(EditorSelectedTimer)
+      EditorSelectedTimer = 0
+    end
   end
 end
 AddEvent('OnPlayerEndEditObject', Editor_OnPlayerEndEditObject)
