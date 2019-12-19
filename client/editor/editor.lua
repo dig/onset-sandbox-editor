@@ -49,7 +49,7 @@ function Editor_OnPackageStart()
 
   -- Load objects
   EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 2, 60)
-  SetWebAnchors(EditorObjectsUI, 0.8, 0.0, 1.0, 1.0)
+  SetWebAnchors(EditorObjectsUI, 0.81, 0.0, 1.0, 1.0)
   LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/objects/objects.html')
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
 
