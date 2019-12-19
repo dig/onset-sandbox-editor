@@ -3,7 +3,8 @@ Authors: Digital
 
 #### Features
 * Camera.
-* Spawn objects, weapons, vehicles & clothing.
+* Spawn objects, weapons, vehicles, doors & clothing.
+* Precise editing.
 * World saving and loads on server start.
 * World auto saves every 15 minutes.
 * Clothing fully synced.
