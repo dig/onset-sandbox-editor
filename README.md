@@ -12,6 +12,7 @@ Authors: Digital
 * Select multiple objects.
 * Delete object(s).
 * Move, scale, rotate and copy object(s).
+* Schematics (Save & load custom builds).
 
 #### Installation
 Create a folder inside your servers package folder called sandbox, download all files from this repository and place them inside the sandbox folder.
