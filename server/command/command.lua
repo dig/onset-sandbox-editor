@@ -21,7 +21,7 @@ end
 AddCommand('select', Editor_CommandMassSelect)
 
 function Editor_CommandSchematic(player, subcommand, name, check)
-  if subcommand == nil then return AddPlayerChat(player, '/schematic <save|load|list> <name>') end
+  if subcommand == nil then return AddPlayerChat(player, 'Usage: /schematic <save|load|list> [name]') end
 
   if subcommand == 'save' then
     if name == nil then return AddPlayerChat(player, 'Invalid name.') end
@@ -32,7 +32,7 @@ function Editor_CommandSchematic(player, subcommand, name, check)
     if name == nil then return AddPlayerChat(player, 'Invalid name.') end
     if check ~= nil then return AddPlayerChat(player, 'Names cannot contain spaces.') end
     if EditorSchematics[name] == nil then return AddPlayerChat(player, 'Schematic doesn\'t exist.') end
-    
+
     CallRemoteEvent(player, 'SchematicLoad', name, EditorSchematics[name]['selected'], EditorSchematics[name]['extra'])    
   elseif subcommand == 'list' then
     local _str = ''
