@@ -8,6 +8,7 @@ local EDITOR_TYPE_OBJECT = 0
 local EDITOR_TYPE_VEHICLE = 1
 local EDITOR_TYPE_WEAPON = 2
 local EDITOR_TYPE_DOOR = 3
+local EDITOR_TYPE_SCHEMATIC = 4
 
 local EditorState = EDITOR_CLOSED
 local UIState = UI_SHOWN
@@ -30,6 +31,7 @@ local EditorSelectedObject = 0
 local EditorSelectedObjectEdited = false
 local EditorSelectedObjectMode = EDIT_LOCATION
 local EditorHighlightedObjects = {}
+local EditorHighlightOverride = false
 
 local EditorLastSyncData = {}
 local EditorLastClick = 0
@@ -123,6 +125,8 @@ function Editor_OnKeyRelease(key)
       CallRemoteEvent('CreatePickup', EditorPendingID, EditorPendingData['weaponID'], x, y, z + 70)
     elseif EditorPendingType == EDITOR_TYPE_DOOR then
       CallRemoteEvent('CreateDoorObject', EditorPendingID, EditorPendingData['doorID'], x, y, z)
+    elseif EditorPendingType == EDITOR_TYPE_SCHEMATIC then
+      
     end
   elseif (key == 'Left Alt' and EditorState == EDITOR_OPEN and EditorSelectedObject ~= 0) then 
     if EditorSelectedObjectMode == EDIT_LOCATION then
@@ -419,7 +423,7 @@ function table.contains(table, value)
 end
 
 function Editor_SelectObject(object)
-  if ((IsCtrlPressed() or IsShiftPressed()) and IsValidObject(object)) then
+  if ((IsCtrlPressed() or IsShiftPressed() or EditorHighlightOverride) and IsValidObject(object)) then
     if not table.contains(EditorHighlightedObjects, object) then
       SetObjectOutline(object, true)
       CallEvent('OnObjectToggleSelect', object, true)
@@ -667,3 +671,92 @@ function Editor_OnObjectToggleSelect(object, state)
   end
 end
 AddEvent('OnObjectToggleSelect', Editor_OnObjectToggleSelect)
+
+function Editor_OnMassSelect(objectID, radius)
+  if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
+
+  local x, y, z = GetPlayerLocation(GetPlayerId())
+  objectID = tonumber(objectID)
+  radius = tonumber(radius)
+
+  EditorHighlightOverride = true
+  for _i, v in pairs(GetStreamedObjects()) do
+    local ox, oy, oz = GetObjectLocation(v)
+    local distance = GetDistance3D(x, y, z, ox, oy, oz)
+
+    if (GetObjectModel(v) == objectID and distance <= radius) then
+      if EditorSelectedObject == 0 then
+        EditorHighlightOverride = false
+      else
+        EditorHighlightOverride = true
+      end
+
+      Editor_SelectObject(v)
+    end
+  end
+
+  EditorHighlightOverride = false
+end
+AddRemoteEvent('MassSelect', Editor_OnMassSelect)
+
+function Editor_OnRequestSchematicSave(name)
+  if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
+  if EditorSelectedObject == 0 then return AddPlayerChat('Nothing to save.') end
+
+  local x, y, z = GetObjectLocation(EditorSelectedObject)
+  local rx, ry, rz = GetObjectRotation(EditorSelectedObject)
+  local sx, sy, sz = GetObjectScale(EditorSelectedObject)
+
+  local _extra = {}
+  if #EditorHighlightedObjects > 0 then
+    for _, v in ipairs(EditorHighlightedObjects) do
+      local vx, vy, vz = GetObjectLocation(v)
+      local vrx, vry, vrz = GetObjectRotation(v)
+      local vsx, vsy, vsz = GetObjectScale(v)
+  
+      local _object = {}
+      _object['modelID'] = GetObjectModel(v)
+      
+      -- Relative position
+      _object['relx'] = vx - x
+      _object['rely'] = vy - y
+      _object['relz'] = vz - z
+  
+      -- Rotation
+      _object['rx'] = vrx
+      _object['ry'] = vry
+      _object['rz'] = vrz
+  
+      -- Scale
+      _object['sx'] = vsx
+      _object['sy'] = vsy
+      _object['sz'] = vsz
+  
+      table.insert(_extra, _object)
+    end
+  end
+
+  local _selected = {
+    modelID = GetObjectModel(EditorSelectedObject),
+    rx = rx,
+    ry = ry,
+    rz = rz,
+    sx = sx,
+    sy = sy,
+    sz = sz
+  }
+
+  CallRemoteEvent('SchematicSave', name, _selected, _extra)
+end
+AddRemoteEvent('RequestSchematicSave', Editor_OnRequestSchematicSave)
+
+function Editor_OnSchematicLoad(name, _selected, _extra)
+  if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
+  if EditorSelectedObject ~= 0 or EditorPendingPlacement then return AddPlayerChat('You can\'t spawn a schematic right now.') end
+
+  Editor_CreateObjectPlacement(_selected['modelID'], _selected['rx'], _selected['ry'], _selected['rz'], _selected['sx'], _selected['sy'], _selected['sz'])
+  EditorPendingData['extra'] = _extra
+
+  AddPlayerChat('Loaded schematic: ' .. name .. '.')
+end
+AddRemoteEvent('SchematicLoad', Editor_OnSchematicLoad)

@@ -1,5 +1,6 @@
 EditorObjects = {}
 EditorDoors = {}
+EditorSchematics = {}
 EditorWorldLoaded = false
 
 function Editor_SaveWorld()
@@ -76,3 +77,18 @@ function Editor_LoadWorld()
   end
 end
 AddEvent('OnPackageStart', Editor_LoadWorld)
+
+function Editor_SaveSchematics()
+  File_SaveJSONTable('schematics.json', EditorSchematics)
+end
+
+function Editor_LoadSchematics()
+  local _data = File_LoadJSONTable('schematics.json')
+  if _data ~= nil then
+    EditorSchematics = _data
+    print('Server: Schematics loaded!')
+  else
+    print('Server: No schematics.json found in root server directory, one will be made next time a schematic is saved.')
+  end
+end
+AddEvent('OnPackageStart', Editor_LoadSchematics)

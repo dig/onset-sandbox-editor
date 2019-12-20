@@ -200,15 +200,3 @@ function Editor_SetClothingPreset(player, clothingID)
   end
 end
 AddRemoteEvent('SetClothingPreset', Editor_SetClothingPreset)
-
-function Editor_CommandObjectSpeed(player, speed)
-  if not IsValidPlayer(player) then return end
-  if speed == nil then return AddPlayerChat(player, 'Usage: /objectspeed <speed>') end
-
-  speed = tonumber(speed)
-  if (speed < 0 or speed > 200) then return AddPlayerChat(player, 'Object speed must be between 0 and 200.') end
-
-  AddPlayerChat(player, 'Object speed set to ' .. speed .. '.')
-  CallRemoteEvent(player, 'SetEditorSpeed', speed)
-end
-AddCommand('objectspeed', Editor_CommandObjectSpeed)
