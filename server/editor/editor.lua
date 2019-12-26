@@ -181,6 +181,15 @@ function Editor_CreateFirework(player, x, y, z)
 end
 AddRemoteEvent('CreateFirework', Editor_CreateFirework)
 
+local timer = nil
+
+function fix_pickup_hit(player,pickup,weaponID)
+  if (GetPlayerMovementMode(player)==2) then
+    SetPlayerWeapon(player, weaponID, 450, true, 1, true)
+    DestroyTimer(timer)
+  end
+end
+
 function Editor_OnPlayerPickupHit(player, pickup)
   local weaponID = GetPickupPropertyValue(pickup, 'weaponID')
   weaponID = tonumber(weaponID)
@@ -188,6 +197,9 @@ function Editor_OnPlayerPickupHit(player, pickup)
   if weaponID ~= nil and weaponID ~= 0 then
     SetPlayerWeapon(player, weaponID, 450, true, 1, true)
     DestroyPickup(pickup)
+    if (GetPlayerMovementMode(player)==3) then
+      timer = CreateTimer(fix_pickup_hit, 0.1 ,player,pickup,weaponID)
+    end
   end
 end
 AddEvent("OnPlayerPickupHit", Editor_OnPlayerPickupHit)
