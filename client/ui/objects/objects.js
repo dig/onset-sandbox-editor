@@ -197,7 +197,7 @@ function LoadDoors(amount) {
     }
 
     appendHTML += `<div class="item" data-objectid="${modelID}" data-doorid="${i}">
-      <img src="${(isCustom ? `http://asset/sandbox/client/editor/files/doors/${i}.jpg` : `http://game/objects/${modelID}`)}" />
+      <img src="${(isCustom ? `http://asset/sandbox/client/ui/common/doors/${i}.jpg` : `http://game/objects/${modelID}`)}" />
       <div class="top-left">${i}</div>
     </div>`;
   }
@@ -222,7 +222,7 @@ function LoadClothing(amount) {
   let appendHTML = '';
   for (let i = 1; i < amount + 1; i++) {
     appendHTML += `<div class="item" data-id="${i}">
-      <img src="http://asset/sandbox/client/editor/files/clothing/${(i == 11 ? 10 : i)}.jpg" />
+      <img src="http://asset/sandbox/client/ui/common/clothing/${(i == 11 ? 10 : i)}.jpg" />
       <div class="top-left">${i}</div>
     </div>`;
   }

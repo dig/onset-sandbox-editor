@@ -49,31 +49,31 @@ function Editor_OnPackageStart()
   -- Load information
   EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorInfoUI, 0.0, 0.6, 0.4, 1.0)
-  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/information/information.html')
+  LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/ui/information/information.html')
   SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
 
   -- Load objects
   EditorObjectsUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 2, 60)
   SetWebAnchors(EditorObjectsUI, 0.81, 0.0, 1.0, 1.0)
-  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/objects/objects.html')
+  LoadWebFile(EditorObjectsUI, 'http://asset/' .. GetPackageName() .. '/client/ui/objects/objects.html')
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
 
   -- Load toolbar
   EditorToolbarUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.11)
-  LoadWebFile(EditorToolbarUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/toolbar/toolbar.html')
+  LoadWebFile(EditorToolbarUI, 'http://asset/' .. GetPackageName() .. '/client/ui/toolbar/toolbar.html')
   SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
 
   -- Load footer
   EditorFooterUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(EditorFooterUI, 0.0, 0.0, 1.0, 1.0)
-  LoadWebFile(EditorFooterUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/footer/footer.html')
+  LoadWebFile(EditorFooterUI, 'http://asset/' .. GetPackageName() .. '/client/ui/footer/footer.html')
   SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
 
   -- Load precise
   EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 5, 60)
   SetWebAnchors(EditorPreciseUI, 0.56, 0.7, 0.81, 1.0)
-  LoadWebFile(EditorPreciseUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/precise/precise.html')
+  LoadWebFile(EditorPreciseUI, 'http://asset/' .. GetPackageName() .. '/client/ui/precise/precise.html')
   SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
