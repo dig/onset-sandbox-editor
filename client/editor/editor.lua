@@ -15,14 +15,12 @@ local FOLDER_SCHEMATIC = 1
 
 local EditorState = EDITOR_CLOSED
 local UIState = UI_SHOWN
-local FolderState = FOLDER_WORLD
 
 local EditorInfoUI = 0
 local EditorObjectsUI = 0
 local EditorToolbarUI = 0
 local EditorFooterUI = 0
 local EditorPreciseUI = 0
-local EditorFolderUI = 0
 
 local EditorLastLocation = {}
 
