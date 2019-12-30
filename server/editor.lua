@@ -21,7 +21,7 @@ local DoorConfig = {
   [39]=270
 }
 
-function Editor_SetPlayerEditor(player, bEnable)
+local function Editor_SetPlayerEditor(player, bEnable)
   if not IsValidPlayer(player) then return end
   
   if bEnable then 
@@ -35,7 +35,7 @@ function Editor_SetPlayerEditor(player, bEnable)
 end
 AddRemoteEvent('SetPlayerEditor', Editor_SetPlayerEditor)
 
-function Editor_SetPlayerLocation(player, x, y, z)
+local function Editor_SetPlayerLocation(player, x, y, z)
   SetPlayerLocation(player, x, y, z)
 end
 AddRemoteEvent('SetPlayerLocation', Editor_SetPlayerLocation)
@@ -56,7 +56,7 @@ function Editor_CreateObject(player, objectID, x, y, z, rx, ry, rz, sx, sy, sz)
 end
 AddRemoteEvent('CreateObject', Editor_CreateObject)
 
-function Editor_DeleteObject(player, object)
+local function Editor_DeleteObject(player, object)
   local _index = 0
   for i,v in pairs(EditorObjects) do
     if v == object then
@@ -72,7 +72,7 @@ function Editor_DeleteObject(player, object)
 end
 AddRemoteEvent('DeleteObject', Editor_DeleteObject)
 
-function Editor_SyncObject(player, object, x, y, z, rx, ry, rz, sx, sy, sz)
+local function Editor_SyncObject(player, object, x, y, z, rx, ry, rz, sx, sy, sz)
   if not IsValidObject(object) then return end
 
   SetObjectLocation(object, x, y, z)
@@ -84,20 +84,20 @@ function Editor_SyncObject(player, object, x, y, z, rx, ry, rz, sx, sy, sz)
 end
 AddRemoteEvent('SyncObject', Editor_SyncObject)
 
-function Editor_CreateVehicle(player, vehicleID, x, y, z)
+local function Editor_CreateVehicle(player, vehicleID, x, y, z)
   local _object = CreateVehicle(vehicleID, x, y, z)
   if _object then CallRemoteEvent(player, 'OnServerObjectCreate', _object) end
 end
 AddRemoteEvent('CreateVehicle', Editor_CreateVehicle)
 
-function Editor_CreatePickup(player, objectID, weaponID, x, y, z)
+local function Editor_CreatePickup(player, objectID, weaponID, x, y, z)
   local _object = CreatePickup(objectID, x, y, z)
   SetPickupPropertyValue(_object, 'weaponID', weaponID, false)
   CallRemoteEvent(player, 'OnServerObjectCreate', _object)
 end
 AddRemoteEvent('CreatePickup', Editor_CreatePickup)
 
-function Editor_CreateDoorObject(player, objectID, doorID, x, y, z, yaw)
+local function Editor_CreateDoorObject(player, objectID, doorID, x, y, z, yaw)
   local _object = CreateObject(objectID, x, y, z)
 
   if yaw ~= nil then
@@ -126,7 +126,7 @@ function Editor_CreateDoor(doorID, x, y, z, yaw)
   table.insert(EditorDoors, _door)
 end
 
-function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
+local function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
   if not IsValidObject(object) then return end
 
   local _AddYaw = DoorConfig[tonumber(doorID)]
@@ -146,7 +146,7 @@ function Editor_SetObjectToDoor(player, object, doorID, x, y, z, yaw)
 end
 AddRemoteEvent('SetObjectToDoor', Editor_SetObjectToDoor)
 
-function Editor_SetDoorToObject(player, door)
+local function Editor_SetDoorToObject(player, door)
   if not IsValidDoor(door) then return end
 
   local _data = EditorDoorData[door]
@@ -173,7 +173,7 @@ function Editor_SetDoorToObject(player, door)
 end
 AddRemoteEvent('SetDoorToObject', Editor_SetDoorToObject)
 
-function Editor_CreateFirework(player, x, y, z)
+local function Editor_CreateFirework(player, x, y, z)
   local _fireworkID = Random(1, 13)
   for _,v in pairs(GetAllPlayers()) do
     CallRemoteEvent(v, 'OnServerFireworkCreate', _fireworkID, x, y, z)
@@ -181,7 +181,7 @@ function Editor_CreateFirework(player, x, y, z)
 end
 AddRemoteEvent('CreateFirework', Editor_CreateFirework)
 
-function Editor_OnPlayerPickupHit(player, pickup)
+local function Editor_OnPlayerPickupHit(player, pickup)
   local weaponID = GetPickupPropertyValue(pickup, 'weaponID')
   weaponID = tonumber(weaponID)
 
@@ -192,7 +192,7 @@ function Editor_OnPlayerPickupHit(player, pickup)
 end
 AddEvent("OnPlayerPickupHit", Editor_OnPlayerPickupHit)
 
-function Editor_SetClothingPreset(player, clothingID)
+local function Editor_SetClothingPreset(player, clothingID)
   SetPlayerPropertyValue(player, 'clothingID', clothingID, true)
   
   for _, v in pairs(GetAllPlayers()) do

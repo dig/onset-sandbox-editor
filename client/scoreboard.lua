@@ -1,7 +1,7 @@
 local ScoreboardUI = 0
 local ScoreboardFirstOpen = false
 
-function Scoreboard_OnPackageStart()
+local function Scoreboard_OnPackageStart()
   ScoreboardUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
   SetWebAnchors(ScoreboardUI, 0.0, 0.0, 1.0, 1.0)
   LoadWebFile(ScoreboardUI, 'http://asset/' .. GetPackageName() .. '/client/ui/scoreboard/scoreboard.html')
@@ -9,7 +9,7 @@ function Scoreboard_OnPackageStart()
 end
 AddEvent("OnPackageStart", Scoreboard_OnPackageStart)
 
-function Scoreboard_OnKeyPress(key)
+local function Scoreboard_OnKeyPress(key)
   if key == 'Tab' then
     CallRemoteEvent('RequestScoreboardUpdate')
     SetInputMode(INPUT_GAMEANDUI)
@@ -18,7 +18,7 @@ function Scoreboard_OnKeyPress(key)
 end
 AddEvent('OnKeyPress', Scoreboard_OnKeyPress)
 
-function Scoreboard_OnKeyRelease(key)
+local function Scoreboard_OnKeyRelease(key)
   if key == 'Tab' then
     SetInputMode(INPUT_GAME)
     SetWebVisibility(ScoreboardUI, WEB_HIDDEN)
@@ -26,7 +26,7 @@ function Scoreboard_OnKeyRelease(key)
 end
 AddEvent('OnKeyRelease', Scoreboard_OnKeyRelease)
 
-function Scoreboard_OnServerScoreboardUpdate(data, name, players, maxplayers)
+local function Scoreboard_OnServerScoreboardUpdate(data, name, players, maxplayers)
   if data == nil then return end
 
   ExecuteWebJS(ScoreboardUI, 'ResetScoreboard()')

@@ -3,7 +3,7 @@ EditorDoors = {}
 EditorSchematics = {}
 EditorWorldLoaded = false
 
-function Editor_SaveWorld()
+local function Editor_SaveWorld()
   local _table = {}
 
   -- Save objects
@@ -56,8 +56,7 @@ CreateTimer(Editor_SaveWorld, 10 * 60 * 1000)
 AddCommand('save', Editor_SaveWorld)
 AddRemoteEvent('WorldSave', Editor_SaveWorld)
 
-
-function Editor_LoadWorld()
+local function Editor_LoadWorld()
   if EditorWorldLoaded then return end
   EditorWorldLoaded = true
 
@@ -84,7 +83,7 @@ function Editor_SaveSchematics()
   File_SaveJSONTable('schematics.json', EditorSchematics)
 end
 
-function Editor_LoadSchematics()
+local function Editor_LoadSchematics()
   local _data = File_LoadJSONTable('schematics.json')
   if _data ~= nil then
     EditorSchematics = _data

@@ -1,6 +1,6 @@
 ScoreboardData = {}
 
-function Scoreboard_RequestUpdate(player)
+local function Scoreboard_RequestUpdate(player)
   local _send = {}
   for _, v in ipairs(GetAllPlayers()) do
     local kills = ScoreboardData[v]['kills']
@@ -35,7 +35,7 @@ function Scoreboard_UpdateAllClients()
   end
 end
 
-function Scoreboard_OnPlayerJoin(player)
+local function Scoreboard_OnPlayerJoin(player)
   if ScoreboardData[player] == nil then
     local _new = {
       ['kills'] = 0,
@@ -49,7 +49,7 @@ function Scoreboard_OnPlayerJoin(player)
 end
 AddEvent('OnPlayerJoin', Scoreboard_OnPlayerJoin)
 
-function Scoreboard_OnPlayerQuit(player)
+local function Scoreboard_OnPlayerQuit(player)
   if ScoreboardData[player] ~= nil then
     local _index = 0
     for _i, v in pairs(ScoreboardData) do
@@ -66,7 +66,7 @@ function Scoreboard_OnPlayerQuit(player)
 end
 AddEvent('OnPlayerQuit', Scoreboard_OnPlayerQuit)
 
-function Scoreboard_OnPlayerDeath(player, instigator)
+local function Scoreboard_OnPlayerDeath(player, instigator)
   -- Player
   if ScoreboardData[player] ~= nil then
     ScoreboardData[player]['deaths'] = ScoreboardData[player]['deaths'] + 1

@@ -10,9 +10,6 @@ local EDITOR_TYPE_WEAPON = 2
 local EDITOR_TYPE_DOOR = 3
 local EDITOR_TYPE_SCHEMATIC = 4
 
-local FOLDER_WORLD = 0
-local FOLDER_SCHEMATIC = 1
-
 local EditorState = EDITOR_CLOSED
 local UIState = UI_SHOWN
 
@@ -45,9 +42,9 @@ local TOTAL_WEAPONS = 21
 local TOTAL_DOORS = 40
 local TOTAL_CLOTHING = 30
 
-function Editor_OnPackageStart()
+local function Editor_OnPackageStart()
   -- Load information
-  EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  EditorInfoUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 1)
   SetWebAnchors(EditorInfoUI, 0.0, 0.6, 0.4, 1.0)
   LoadWebFile(EditorInfoUI, 'http://asset/' .. GetPackageName() .. '/client/ui/information/information.html')
   SetWebVisibility(EditorInfoUI, WEB_HITINVISIBLE)
@@ -59,26 +56,26 @@ function Editor_OnPackageStart()
   SetWebVisibility(EditorObjectsUI, WEB_HIDDEN)
 
   -- Load toolbar
-  EditorToolbarUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
-  SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.11)
+  EditorToolbarUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 20)
+  SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.5)
   LoadWebFile(EditorToolbarUI, 'http://asset/' .. GetPackageName() .. '/client/ui/toolbar/toolbar.html')
   SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
 
   -- Load footer
-  EditorFooterUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
+  EditorFooterUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 5)
   SetWebAnchors(EditorFooterUI, 0.0, 0.0, 1.0, 1.0)
   LoadWebFile(EditorFooterUI, 'http://asset/' .. GetPackageName() .. '/client/ui/footer/footer.html')
   SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
 
   -- Load precise
-  EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 5, 60)
+  EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 5, 20)
   SetWebAnchors(EditorPreciseUI, 0.56, 0.7, 0.81, 1.0)
   LoadWebFile(EditorPreciseUI, 'http://asset/' .. GetPackageName() .. '/client/ui/precise/precise.html')
   SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", Editor_OnPackageStart)
 
-function Editor_OnWebLoadComplete(webID)
+local function Editor_OnWebLoadComplete(webID)
   if EditorInfoUI == webID then
     -- Update information UI based on location
     local x, y, z = GetPlayerLocation()
@@ -103,7 +100,7 @@ function Editor_HandleCreateObject(x, y, z)
   end
 end
 
-function Editor_OnKeyRelease(key)
+local function Editor_OnKeyRelease(key)
   EditorLastClick = GetTimeSeconds()
 
   if key == 'P' then
@@ -155,6 +152,8 @@ function Editor_OnKeyRelease(key)
       EditorSelectedObjectEdited = false
       Editor_SelectObject(0)
     end
+  elseif (key == 'S' and IsCtrlPressed() and EditorState == EDITOR_OPEN) then 
+    CallRemoteEvent('WorldSave')
   elseif (key == 'C' and IsCtrlPressed() and EditorState == EDITOR_OPEN) then 
     if (EditorSelectedObject ~= 0) then
       local _objectID = GetObjectModel(EditorSelectedObject)
@@ -226,7 +225,7 @@ function Editor_OnKeyRelease(key)
 
       if EditorState == EDITOR_OPEN then
         SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
-        SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
+        SetWebVisibility(EditorToolbarUI, WEB_HITINVISIBLE)
         SetWebVisibility(EditorFooterUI, WEB_HITINVISIBLE)
         
         if EditorSelectedObject ~= 0 then
@@ -238,7 +237,7 @@ function Editor_OnKeyRelease(key)
 end
 AddEvent('OnKeyRelease', Editor_OnKeyRelease)
 
-function Editor_OnKeyPress(key)
+local function Editor_OnKeyPress(key)
   -- Check for double click
   local bDoubleClick = GetTimeSeconds() <= (EditorLastClick + 0.25)
 
@@ -254,7 +253,7 @@ function Editor_OnKeyPress(key)
     elseif EntityType == HIT_OBJECT then
       local x, y, z = GetMouseHitLocation()
 
-      -- Temp solution because we can't get doors from GetMouseHitEntity()
+      -- TEMP: solution because we can't get doors from GetMouseHitEntity()
       local _dis = 1000000000
       for _,v in pairs(GetStreamedDoors()) do
         local dx, dy, dz = GetDoorLocation(v)
@@ -274,14 +273,14 @@ function Editor_OnKeyPress(key)
 end
 AddEvent('OnKeyPress', Editor_OnKeyPress)
 
-function Editor_OnServerChangeEditor(bEnabled)
+local function Editor_OnServerChangeEditor(bEnabled)
   ShowMouseCursor(bEnabled)
   ShowWeaponHUD(not bEnabled)
   ShowHealthHUD(not bEnabled)
 
   if bEnabled then
     SetWebVisibility(EditorObjectsUI, WEB_VISIBLE)
-    SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
+    SetWebVisibility(EditorToolbarUI, WEB_HITINVISIBLE)
     SetWebVisibility(EditorFooterUI, WEB_HITINVISIBLE)
     SetInputMode(INPUT_GAMEANDUI)
 
@@ -300,7 +299,7 @@ function Editor_OnServerChangeEditor(bEnabled)
 end
 AddRemoteEvent('OnServerChangeEditor', Editor_OnServerChangeEditor)
 
-function Editor_OnLocationChange()
+local function Editor_OnLocationChange()
   local x, y, z = GetPlayerLocation()
 
   -- Use camera if in editor
@@ -319,7 +318,7 @@ function Editor_OnLocationChange()
 end
 CreateTimer(Editor_OnLocationChange, 100)
 
-function Editor_CreateObjectPlacement(objectID, rx, ry, rz, sx, sy, sz)
+local function Editor_CreateObjectPlacement(objectID, rx, ry, rz, sx, sy, sz)
   objectID = tonumber(objectID)
   if not EditorState == EDITOR_OPEN then return end
   if (objectID <= 0 or objectID > GetObjectModelCount()) then return end
@@ -342,7 +341,7 @@ function Editor_CreateObjectPlacement(objectID, rx, ry, rz, sx, sy, sz)
 end
 AddEvent('CreateObjectPlacement', Editor_CreateObjectPlacement)
 
-function Editor_CreateVehiclePlacement(vehicleID)
+local function Editor_CreateVehiclePlacement(vehicleID)
   vehicleID = tonumber(vehicleID)
   if not EditorState == EDITOR_OPEN then return end
   if (vehicleID <= 0 or vehicleID > TOTAL_VEHICLES) then return end
@@ -354,7 +353,7 @@ function Editor_CreateVehiclePlacement(vehicleID)
 end
 AddEvent('CreateVehiclePlacement', Editor_CreateVehiclePlacement)
 
-function Editor_CreateWeaponPlacement(objectID, weaponID)
+local function Editor_CreateWeaponPlacement(objectID, weaponID)
   objectID = tonumber(objectID)
   weaponID = tonumber(weaponID)
 
@@ -369,7 +368,7 @@ function Editor_CreateWeaponPlacement(objectID, weaponID)
 end
 AddEvent('CreateWeaponPlacement', Editor_CreateWeaponPlacement)
 
-function Editor_CreateDoorPlacement(objectID, doorID)
+local function Editor_CreateDoorPlacement(objectID, doorID)
   objectID = tonumber(objectID)
   doorID = tonumber(doorID)
 
@@ -384,7 +383,7 @@ function Editor_CreateDoorPlacement(objectID, doorID)
 end
 AddEvent('CreateDoorPlacement', Editor_CreateDoorPlacement)
 
-function Editor_OnRenderHUD()
+local function Editor_OnRenderHUD()
   -- Draw yellow circle for object placement
   if (EditorPendingPlacement and EditorState == EDITOR_OPEN) then
     local x, y, z = GetMouseHitLocation()
@@ -395,7 +394,7 @@ function Editor_OnRenderHUD()
 end
 AddEvent('OnRenderHUD', Editor_OnRenderHUD)
 
-function Editor_OnServerObjectCreate(object)
+local function Editor_OnServerObjectCreate(object)
   local _doorID = GetObjectPropertyValue(object, 'doorID')
 
   if (EditorPendingPlacement or _doorID ~= nil) then
@@ -423,6 +422,30 @@ function table.contains(table, value)
   end
 
   return false
+end
+
+function Editor_SelectDoor(door)
+  CallRemoteEvent('SetDoorToObject', door)
+end
+
+function Editor_UpdateSyncData(object)
+  if not IsValidObject(object) then return end
+
+  local x, y, z = GetObjectLocation(object)
+  local rx, ry, rz = GetObjectRotation(object)
+  local sx, sy, sz = GetObjectScale(object)
+
+  EditorLastSyncData['x'] = x
+  EditorLastSyncData['y'] = y
+  EditorLastSyncData['z'] = z
+
+  EditorLastSyncData['rx'] = rx
+  EditorLastSyncData['ry'] = ry
+  EditorLastSyncData['rz'] = rz
+
+  EditorLastSyncData['sx'] = sx
+  EditorLastSyncData['sy'] = sy
+  EditorLastSyncData['sz'] = sz
 end
 
 function Editor_SelectObject(object)
@@ -469,30 +492,6 @@ function Editor_SelectObject(object)
       Editor_UpdateSyncData(object)
     end
   end
-end
-
-function Editor_SelectDoor(door)
-  CallRemoteEvent('SetDoorToObject', door)
-end
-
-function Editor_UpdateSyncData(object)
-  if not IsValidObject(object) then return end
-
-  local x, y, z = GetObjectLocation(object)
-  local rx, ry, rz = GetObjectRotation(object)
-  local sx, sy, sz = GetObjectScale(object)
-
-  EditorLastSyncData['x'] = x
-  EditorLastSyncData['y'] = y
-  EditorLastSyncData['z'] = z
-
-  EditorLastSyncData['rx'] = rx
-  EditorLastSyncData['ry'] = ry
-  EditorLastSyncData['rz'] = rz
-
-  EditorLastSyncData['sx'] = sx
-  EditorLastSyncData['sy'] = sy
-  EditorLastSyncData['sz'] = sz
 end
 
 function Editor_SyncObject(object, ix, iy, iz, irx, iry, irz, isx, isy, isz)
@@ -552,11 +551,6 @@ function Editor_SyncObject(object, ix, iy, iz, irx, iry, irz, isx, isy, isz)
   Editor_UpdateSyncData(object)
 end
 
-function Editor_OnTimerTick()
-  if (EditorPreciseUI == 0 or EditorSelectedObject == 0) then return end
-  Editor_UpdatePreciseUI(EditorSelectedObject)
-end
-
 function Editor_UpdatePreciseUI(object)
   local x, y, z = GetObjectLocation(object)
   local rx, ry, rz = GetObjectRotation(object)
@@ -567,25 +561,30 @@ function Editor_UpdatePreciseUI(object)
   ExecuteWebJS(EditorPreciseUI, 'UpdateScale (' .. sx .. ', ' .. sy .. ', ' .. sz .. ')')
 end
 
-function Editor_UpdateSelectedPosition(x, y, z)
+function Editor_OnTimerTick()
+  if (EditorPreciseUI == 0 or EditorSelectedObject == 0) then return end
+  Editor_UpdatePreciseUI(EditorSelectedObject)
+end
+
+local function Editor_UpdateSelectedPosition(x, y, z)
   if EditorSelectedObject == 0 then return end
   Editor_SyncObject(EditorSelectedObject, tonumber(x), tonumber(y), tonumber(z))
 end
 AddEvent('UpdateSelectedPosition', Editor_UpdateSelectedPosition)
 
-function Editor_UpdateSelectedRotation(x, y, z)
+local function Editor_UpdateSelectedRotation(x, y, z)
   if EditorSelectedObject == 0 then return end
   Editor_SyncObject(EditorSelectedObject, nil, nil, nil, tonumber(x), tonumber(y), tonumber(z))
 end
 AddEvent('UpdateSelectedRotation', Editor_UpdateSelectedRotation)
 
-function Editor_UpdateSelectedScale(x, y, z)
+local function Editor_UpdateSelectedScale(x, y, z)
   if EditorSelectedObject == 0 then return end
   Editor_SyncObject(EditorSelectedObject, nil, nil, nil, nil, nil, nil, tonumber(x), tonumber(y), tonumber(z))
 end
 AddEvent('UpdateSelectedScale', Editor_UpdateSelectedScale)
 
-function Editor_OnPlayerBeginEditObject(object)
+local function Editor_OnPlayerBeginEditObject(object)
   if object == EditorSelectedObject then
     AddPlayerChat('Start sync process.')
 
@@ -599,7 +598,7 @@ function Editor_OnPlayerBeginEditObject(object)
 end
 AddEvent('OnPlayerBeginEditObject', Editor_OnPlayerBeginEditObject)
 
-function Editor_OnPlayerEndEditObject(object)
+local function Editor_OnPlayerEndEditObject(object)
   if (object == EditorSelectedObject and EditorSelectedObjectEdited) then
     AddPlayerChat('Synced object.')
     Editor_SyncObject(object)
@@ -614,17 +613,17 @@ function Editor_OnPlayerEndEditObject(object)
 end
 AddEvent('OnPlayerEndEditObject', Editor_OnPlayerEndEditObject)
 
-function Editor_OnServerFireworkCreate(modelID, x, y, z)
+local function Editor_OnServerFireworkCreate(modelID, x, y, z)
   CreateFireworks(modelID, x, y, z, 90.0, 0.0, 0.0)
 end
 AddRemoteEvent('OnServerFireworkCreate', Editor_OnServerFireworkCreate)
 
-function Editor_OnServerClothingUpdate(target, clothingID)
+local function Editor_OnServerClothingUpdate(target, clothingID)
   SetPlayerClothingPreset(target, clothingID)
 end
 AddRemoteEvent('OnServerClothingUpdate', Editor_OnServerClothingUpdate)
 
-function Editor_OnPlayerStreamIn(player)
+local function Editor_OnPlayerStreamIn(player)
   local _clothingID = GetPlayerPropertyValue(player, 'clothingID')
   if (_clothingID ~= nil and _clothingID ~= 0) then
     SetPlayerClothingPreset(player, _clothingID)
@@ -632,12 +631,12 @@ function Editor_OnPlayerStreamIn(player)
 end
 AddEvent('OnPlayerStreamIn', Editor_OnPlayerStreamIn)
 
-function Editor_RequestClothingPreset(clothingID)
+local function Editor_RequestClothingPreset(clothingID)
   CallRemoteEvent('SetClothingPreset', clothingID)
 end
 AddEvent('RequestClothingPreset', Editor_RequestClothingPreset)
 
-function Editor_OnPlayerSpawn()
+local function Editor_OnPlayerSpawn()
   local player = GetPlayerId()
   local _clothingID = GetPlayerPropertyValue(player, 'clothingID')
   if (_clothingID ~= nil and _clothingID ~= 0) then
@@ -647,7 +646,7 @@ end
 AddEvent('OnPlayerSpawn', Editor_OnPlayerSpawn)
 AddRemoteEvent('SetEditorSpeed', SetObjectEditorSpeed)
 
-function Editor_OnPlayerChatWindow(bEnabled)
+local function Editor_OnPlayerChatWindow(bEnabled)
   if (not bEnabled and EditorState == EDITOR_OPEN) then
     ShowMouseCursor(true)
     SetInputMode(INPUT_GAMEANDUI)
@@ -655,7 +654,7 @@ function Editor_OnPlayerChatWindow(bEnabled)
 end
 AddEvent('OnPlayerChatWindow', Editor_OnPlayerChatWindow)
 
-function Editor_CallChatWindowEvent()
+local function Editor_CallChatWindowEvent()
   if IsChatFocus() ~= EditorLastChatState then
     CallEvent('OnPlayerChatWindow', IsChatFocus())
     EditorLastChatState = IsChatFocus()
@@ -663,7 +662,7 @@ function Editor_CallChatWindowEvent()
 end
 CreateTimer(Editor_CallChatWindowEvent, 100)
 
-function Editor_OnObjectToggleSelect(object, state)
+local function Editor_OnObjectToggleSelect(object, state)
   -- Turn door object into door
   local _doorID = GetObjectPropertyValue(object, 'doorID')
   if (_doorID ~= nil and not state) then
@@ -675,7 +674,7 @@ function Editor_OnObjectToggleSelect(object, state)
 end
 AddEvent('OnObjectToggleSelect', Editor_OnObjectToggleSelect)
 
-function Editor_OnMassSelect(objectID, radius)
+local function Editor_OnMassSelect(objectID, radius)
   if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
 
   local x, y, z = GetPlayerLocation(GetPlayerId())
@@ -702,7 +701,7 @@ function Editor_OnMassSelect(objectID, radius)
 end
 AddRemoteEvent('MassSelect', Editor_OnMassSelect)
 
-function Editor_OnRequestSchematicSave(name)
+local function Editor_OnRequestSchematicSave(name)
   if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
   if EditorSelectedObject == 0 then return AddPlayerChat('Nothing to save.') end
 
@@ -753,7 +752,7 @@ function Editor_OnRequestSchematicSave(name)
 end
 AddRemoteEvent('RequestSchematicSave', Editor_OnRequestSchematicSave)
 
-function Editor_OnSchematicLoad(name, _selected, _extra)
+local function Editor_OnSchematicLoad(name, _selected, _extra)
   if EditorState == EDITOR_CLOSED then return AddPlayerChat('This command is only available whilst in the editor.') end
   if EditorSelectedObject ~= 0 or EditorPendingPlacement then return AddPlayerChat('You can\'t spawn a schematic right now.') end
 
@@ -764,9 +763,40 @@ function Editor_OnSchematicLoad(name, _selected, _extra)
 end
 AddRemoteEvent('SchematicLoad', Editor_OnSchematicLoad)
 
-function Editor_OnToolbar(event)
+local function Editor_OnToolbar(event)
   if event == 'WorldSave' then
     CallRemoteEvent(event)
   end
 end
 AddEvent('Toolbar', Editor_OnToolbar)
+
+--[[
+  TEMP: This is an issue with Onset, you cannot change the WebUI visibility settings
+  while the mouse is hovered over it, so the following fixes that.
+]]
+local function Editor_OnToolbarTick()
+  if EditorState ~= EDITOR_OPEN then return end
+
+  local x, y = GetMouseLocation()
+  if x == nil or y == nil then return end
+
+  if y <= 18 then
+    SetWebVisibility(EditorToolbarUI, WEB_VISIBLE)
+  else
+    SetWebVisibility(EditorToolbarUI, WEB_HITINVISIBLE)
+  end
+end
+AddEvent('OnGameTick', Editor_OnToolbarTick)
+
+local function Editor_OnToolbarMouseOut()
+  local x, y = GetScreenSize()
+  if x == nil or y == nil then return end
+
+  local mx, my = GetMouseLocation()
+  if mx == nil or my == nil then return end
+
+  SetMouseLocation(x - 40, y - 40)
+  SetWebVisibility(EditorToolbarUI, WEB_HITINVISIBLE)
+  Delay(300, SetMouseLocation, mx, 28)
+end
+AddEvent('ToolbarMouseOut', Editor_OnToolbarMouseOut)

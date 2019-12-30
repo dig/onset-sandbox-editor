@@ -9,7 +9,7 @@
   overflow: hidden;
 }
 
-body {
+html, body {
   width: 100%;
   height: 100%;
 }
@@ -24,6 +24,7 @@ body {
   /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
   display: flex;
   align-items: center;
+  pointer-events: all !important;
 }
 
 .toolbar > .tool {

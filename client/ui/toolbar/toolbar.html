@@ -14,34 +14,39 @@
   </head>
 
   <body>
-    <div class="toolbar">
+    <div class="toolbar" onmouseleave="CallEvent('ToolbarMouseOut')">
       <div class="tool">
         <small>World</small>
       
         <div class="dropdown">
-          <div class="option" onclick="CallEvent('Toolbar', 'WorldLoad')">
+          <!-- <div class="option" onclick="CallEvent('Toolbar', 'WorldNew')">
+            <img src="http://asset/sandbox/client/ui/toolbar/load.png" />
+            New
+          </div> -->
+
+          <!-- <div class="option" onclick="CallEvent('Toolbar', 'WorldLoad')">
             <img src="http://asset/sandbox/client/ui/toolbar/load.png" />
             Load...
-          </div>
+          </div> -->
 
           <div class="option" onclick="CallEvent('Toolbar', 'WorldSave')">
             <img src="http://asset/sandbox/client/ui/toolbar/save.png" />
-            Save
+            Save (CTRL + S)
           </div>
 
-          <div class="option" onclick="CallEvent('Toolbar', 'ExportJSON')">
-            <img src="http://asset/sandbox/client/ui/toolbar/export.png" />
-            Export as JSON
-          </div>
+          <!-- <div class="option" onclick="CallEvent('Toolbar', 'WorldSaveAs')">
+            <img src="http://asset/sandbox/client/ui/toolbar/save.png" />
+            Save As...
+          </div> -->
 
-          <div class="option" onclick="CallEvent('Toolbar', 'ExportLua')">
+          <!-- <div class="option" onclick="CallEvent('Toolbar', 'ExportLua')">
             <img src="http://asset/sandbox/client/ui/toolbar/export.png" />
-            Export as Lua
-          </div>
+            Export to Lua
+          </div> -->
         </div>
       </div>
 
-      <div class="tool">
+      <!-- <div class="tool">
         <small>Schematic</small>
       
         <div class="dropdown">
@@ -55,7 +60,7 @@
             Save
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </body>
 </html>

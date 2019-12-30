@@ -1,4 +1,4 @@
-function Editor_CommandObjectSpeed(player, speed)
+local function Editor_CommandObjectSpeed(player, speed)
   if not IsValidPlayer(player) then return end
   if speed == nil then return AddPlayerChat(player, 'Usage: /objectspeed <speed>') end
 
@@ -10,7 +10,7 @@ function Editor_CommandObjectSpeed(player, speed)
 end
 AddCommand('objectspeed', Editor_CommandObjectSpeed)
 
-function Editor_CommandMassSelect(player, objectID, radius)
+local function Editor_CommandMassSelect(player, objectID, radius)
   if objectID == nil then return AddPlayerChat(player, 'Usage: /select <objectID> [radius]') end
   if radius == nil then
     radius = 1000000000
@@ -20,7 +20,7 @@ function Editor_CommandMassSelect(player, objectID, radius)
 end
 AddCommand('select', Editor_CommandMassSelect)
 
-function Editor_CommandSchematic(player, subcommand, name, check)
+local function Editor_CommandSchematic(player, subcommand, name, check)
   if subcommand == nil then return AddPlayerChat(player, 'Usage: /schematic <save|load|list> [name]') end
 
   if subcommand == 'save' then
@@ -49,7 +49,7 @@ function Editor_CommandSchematic(player, subcommand, name, check)
 end
 AddCommand('schematic', Editor_CommandSchematic)
 
-function Editor_OnSchematicSave(player, name, _selected, _extra)
+local function Editor_OnSchematicSave(player, name, _selected, _extra)
   EditorSchematics[name] = {
     selected = _selected,
     extra = _extra
