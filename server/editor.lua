@@ -186,8 +186,10 @@ local function Editor_OnPlayerPickupHit(player, pickup)
   weaponID = tonumber(weaponID)
 
   if weaponID ~= nil and weaponID ~= 0 then
+   if (GetPlayerMovementMode(player)==2) then
     SetPlayerWeapon(player, weaponID, 450, true, 1, true)
     DestroyPickup(pickup)
+   end
   end
 end
 AddEvent("OnPlayerPickupHit", Editor_OnPlayerPickupHit)
