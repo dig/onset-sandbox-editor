@@ -54,6 +54,8 @@ function Editor_SaveWorld()
 end
 CreateTimer(Editor_SaveWorld, 10 * 60 * 1000)
 AddCommand('save', Editor_SaveWorld)
+AddRemoteEvent('WorldSave', Editor_SaveWorld)
+
 
 function Editor_LoadWorld()
   if EditorWorldLoaded then return end

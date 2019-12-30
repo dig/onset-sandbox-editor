@@ -7,29 +7,6 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
-    <script>
-			(function(obj) {
-				ue.game = {};
-				ue.game.callevent = function(name, ...args) {
-					if (typeof name != "string") return;
-		
-					if (args.length == 0) {
-						obj.callevent(name, "");
-					}	else {
-            let params = [];
-            
-						for (let i = 0; i < args.length; i++) {
-							params[i] = args[i];
-            }
-            
-						obj.callevent(name, JSON.stringify(params));
-					}
-				};
-      })(ue.game);
-    
-      CallEvent = ue.game.callevent;
-    </script>
-
     <link href="http://asset/sandbox/client/editor/files/ui/objects/objects.css" rel="stylesheet" media="all">
 
     <script src="http://asset/sandbox/client/editor/files/ui/common/util.js"></script>

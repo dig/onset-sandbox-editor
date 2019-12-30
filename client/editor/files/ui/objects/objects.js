@@ -50,7 +50,7 @@ function SetState(to) {
   state.state = to;
 }
 
-DocReady(function() {
+OnDocumentReady(function() {
   document.getElementById('tab-objects').onclick = function() {
     SetState(STATE.OBJECTS);
   };

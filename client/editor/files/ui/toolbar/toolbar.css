@@ -20,6 +20,58 @@ body {
   width: calc(100% + 7px);
   position: absolute;
   top: 0;
-  left: -7px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  left: 0;
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+  display: flex;
+  align-items: center;
+}
+
+.toolbar > .tool {
+  height: 100%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  float: left;
+}
+
+.toolbar > .tool > small {
+  padding: 0 10px;
+}
+
+.toolbar > .tool:hover {
+  background: #343434;
+}
+
+.toolbar > .tool > small {
+  pointer-events: none;
+}
+
+.toolbar > .tool > .dropdown {
+  display: none;
+  position: fixed;
+  top: 18px;
+  width: 170px;
+  background: #090909;
+}
+
+.toolbar > .tool:hover .dropdown, .dropdown:hover {
+  display: block;
+}
+
+.toolbar > .tool > .dropdown > .option {
+  width: 100%;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  float: left;
+  display: flex;
+  align-items: center;
+}
+
+.toolbar > .tool > .dropdown > .option > img {
+  height: 12px;
+  margin-right: 10px;
+}
+
+.toolbar > .tool > .dropdown > .option:hover {
+  background: #343434;
 }

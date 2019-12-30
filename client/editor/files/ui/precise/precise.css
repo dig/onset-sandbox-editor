@@ -17,7 +17,7 @@ body {
 .background {
   background: #171717;
   position: absolute;
-  right: 350px;
+  right: 0;
   bottom: 24px;
   width: 300px;
   padding: 5px;

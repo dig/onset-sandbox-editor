@@ -10,14 +10,19 @@ local EDITOR_TYPE_WEAPON = 2
 local EDITOR_TYPE_DOOR = 3
 local EDITOR_TYPE_SCHEMATIC = 4
 
+local FOLDER_WORLD = 0
+local FOLDER_SCHEMATIC = 1
+
 local EditorState = EDITOR_CLOSED
 local UIState = UI_SHOWN
+local FolderState = FOLDER_WORLD
 
 local EditorInfoUI = 0
 local EditorObjectsUI = 0
 local EditorToolbarUI = 0
 local EditorFooterUI = 0
 local EditorPreciseUI = 0
+local EditorFolderUI = 0
 
 local EditorLastLocation = {}
 
@@ -57,7 +62,7 @@ function Editor_OnPackageStart()
 
   -- Load toolbar
   EditorToolbarUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
-  SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.2)
+  SetWebAnchors(EditorToolbarUI, 0.0, 0.0, 1.0, 0.11)
   LoadWebFile(EditorToolbarUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/toolbar/toolbar.html')
   SetWebVisibility(EditorToolbarUI, WEB_HIDDEN)
 
@@ -68,8 +73,8 @@ function Editor_OnPackageStart()
   SetWebVisibility(EditorFooterUI, WEB_HIDDEN)
 
   -- Load precise
-  EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 1, 60)
-  SetWebAnchors(EditorPreciseUI, 0.65, 0.7, 1.0, 1.0)
+  EditorPreciseUI = CreateWebUI(0.0, 0.0, 0.0, 0.0, 5, 60)
+  SetWebAnchors(EditorPreciseUI, 0.56, 0.7, 0.81, 1.0)
   LoadWebFile(EditorPreciseUI, 'http://asset/' .. GetPackageName() .. '/client/editor/files/ui/precise/precise.html')
   SetWebVisibility(EditorPreciseUI, WEB_HIDDEN)
 end
@@ -760,3 +765,10 @@ function Editor_OnSchematicLoad(name, _selected, _extra)
   AddPlayerChat('Loaded schematic: ' .. name .. '.')
 end
 AddRemoteEvent('SchematicLoad', Editor_OnSchematicLoad)
+
+function Editor_OnToolbar(event)
+  if event == 'WorldSave' then
+    CallRemoteEvent(event)
+  end
+end
+AddEvent('Toolbar', Editor_OnToolbar)

@@ -55,7 +55,7 @@ function SendScale() {
   CallEvent('UpdateSelectedScale', pX.value, pY.value, pZ.value)
 }
 
-DocReady(function() {
+OnDocumentReady(function() {
   //--- Position
   let pX = document.getElementById('x');
   pX.onchange = SendPosition;

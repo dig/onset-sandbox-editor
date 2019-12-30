@@ -6,30 +6,7 @@
     <title>Toolbar</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-
-    <script>
-			(function(obj) {
-				ue.game = {};
-				ue.game.callevent = function(name, ...args) {
-					if (typeof name != "string") return;
-		
-					if (args.length == 0) {
-						obj.callevent(name, "");
-					}	else {
-            let params = [];
-            
-						for (let i = 0; i < args.length; i++) {
-							params[i] = args[i];
-            }
-            
-						obj.callevent(name, JSON.stringify(params));
-					}
-				};
-      })(ue.game);
     
-      CallEvent = ue.game.callevent;
-    </script>
-
     <link href="http://asset/sandbox/client/editor/files/ui/toolbar/toolbar.css" rel="stylesheet" media="all">
 
     <script src="http://asset/sandbox/client/editor/files/ui/common/util.js"></script>
@@ -38,7 +15,47 @@
 
   <body>
     <div class="toolbar">
-      1
+      <div class="tool">
+        <small>World</small>
+      
+        <div class="dropdown">
+          <div class="option" onclick="CallEvent('Toolbar', 'WorldLoad')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/load.png" />
+            Load...
+          </div>
+
+          <div class="option" onclick="CallEvent('Toolbar', 'WorldSave')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/save.png" />
+            Save
+          </div>
+
+          <div class="option" onclick="CallEvent('Toolbar', 'ExportJSON')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/export.png" />
+            Export as JSON
+          </div>
+
+          <div class="option" onclick="CallEvent('Toolbar', 'ExportLua')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/export.png" />
+            Export as Lua
+          </div>
+        </div>
+      </div>
+
+      <div class="tool">
+        <small>Schematic</small>
+      
+        <div class="dropdown">
+          <div class="option" onclick="CallEvent('Toolbar', 'SchematicLoad')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/load.png" />
+            Load...
+          </div>
+
+          <div class="option" onclick="CallEvent('Toolbar', 'SchematicSave')">
+            <img src="http://asset/sandbox/client/editor/files/ui/toolbar/save.png" />
+            Save
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

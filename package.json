@@ -25,6 +25,10 @@
 
     "client/editor/files/ui/common/util.js",
 
+    "client/editor/files/ui/folder/folder.html",
+    "client/editor/files/ui/folder/folder.css",
+    "client/editor/files/ui/folder/folder.js",
+
     "client/editor/files/ui/objects/config.js",
     "client/editor/files/ui/objects/objects.png",
     "client/editor/files/ui/objects/vehicles.png",
@@ -35,6 +39,10 @@
 
     "client/editor/files/ui/toolbar/toolbar.html",
     "client/editor/files/ui/toolbar/toolbar.css",
+    "client/editor/files/ui/toolbar/toolbar.js",
+    "client/editor/files/ui/toolbar/save.png",
+    "client/editor/files/ui/toolbar/load.png",
+    "client/editor/files/ui/toolbar/export.png",
 
     "client/editor/files/ui/footer/footer.html",
     "client/editor/files/ui/footer/footer.css",
