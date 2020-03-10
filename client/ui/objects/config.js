@@ -98,6 +98,10 @@ var VEHICLE_CONFIG = [
   {
     "vehicleID": 25,
     "modelID": 1817
+  },
+  {
+    "vehicleID": 26,
+    "modelID": 1843
   }
 ];
 
